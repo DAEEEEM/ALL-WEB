@@ -170,9 +170,17 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Static File Serving
-    let safeUrl = req.url.split('?')[0];
-    let filePath = path.join(DIR, safeUrl === '/' ? 'index.html' : safeUrl);
+    // Static File Serving with Strict Path Traversal Protection
+    let rawPath = req.url.split('?')[0];
+    let safeUrl = path.normalize(rawPath === '/' ? 'index.html' : rawPath);
+    let filePath = path.join(DIR, safeUrl);
+
+    // Block any path traversal outside DIR
+    if (!filePath.startsWith(DIR)) {
+        res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Access Denied');
+        return;
+    }
 
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
         filePath = path.join(DIR, 'index.html');

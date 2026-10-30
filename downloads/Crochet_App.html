@@ -9136,6 +9136,16 @@ function setStoredNotes(notes) {
   localStorage.setItem(LOCAL_STORAGE.NOTES, JSON.stringify(notes));
 }
 
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function renderNotesMasonry(items = null) {
   const notes = items || getStoredNotes();
   const grid = document.getElementById('notesMasonryGrid');
@@ -9161,18 +9171,18 @@ function renderNotesMasonry(items = null) {
       <div class="note-card-item" style="border-top-color:${n.color || '#fef08a'};" onclick="editNoteById('${n.id}')">
         <div>
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <h4 class="note-card-title">${n.title || 'ملاحظة بدون عنوان'}</h4>
+            <h4 class="note-card-title">${escapeHTML(n.title || 'ملاحظة بدون عنوان')}</h4>
             <i class="fa-solid fa-thumbtack ${n.pinned ? 'pinned' : ''}" style="color:${n.pinned ? 'var(--accent)' : 'var(--text-light)'}"
                onclick="event.stopPropagation();togglePinNote('${n.id}')" title="تثبيت"></i>
           </div>
 
           ${n.image ? `<img src="${n.image}" class="note-photo-thumbnail" alt="صورة الملاحظة">` : ''}
 
-          <div class="note-card-content">${n.body || ''}</div>
+          <div class="note-card-content">${escapeHTML(n.body || '')}</div>
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--text-light);border-top:1px solid var(--border);padding-top:8px;">
-          <span>${n.date || 'اليوم'}</span>
+          <span>${escapeHTML(n.date || 'اليوم')}</span>
           ${checklistTotal > 0 ? `<span><i class="fa-solid fa-list-check"></i> ${checklistDone}/${checklistTotal}</span>` : ''}
         </div>
       </div>
