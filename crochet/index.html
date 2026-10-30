@@ -2174,8 +2174,9 @@
   .lang-menu {
     position: absolute;
     top: calc(100% + 8px);
-    right: 0;
-    min-width: 240px;
+    left: 0;
+    min-width: 220px;
+    max-width: 92vw;
     background: var(--surface-card) !important;
     border: 2px solid var(--border-purple) !important;
     border-radius: 16px;
@@ -2188,9 +2189,29 @@
     opacity: 1 !important;
     animation: fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  [dir="rtl"] .lang-menu {
+    left: 0 !important;
+    right: auto !important;
+  }
   [dir="ltr"] .lang-menu {
-    right: auto;
-    left: 0;
+    right: 0 !important;
+    left: auto !important;
+  }
+  @media (max-width: 640px) {
+    .lang-menu {
+      position: fixed !important;
+      top: 56px !important;
+      left: 14px !important;
+      right: 14px !important;
+      width: calc(100vw - 28px) !important;
+      max-width: 360px !important;
+      margin: 0 auto !important;
+      border-radius: 20px !important;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1000px rgba(0,0,0,0.4) !important;
+      z-index: 999999 !important;
+      max-height: 82vh !important;
+      overflow-y: auto !important;
+    }
   }
   .lang-menu.show {
     display: flex;
@@ -2439,7 +2460,7 @@
       box-sizing: border-box !important;
       max-width: 100vw !important;
       width: 100% !important;
-      overflow: hidden !important;
+      overflow: visible !important;
     }
     @media (max-width: 600px) {
       .compact-header {
@@ -6342,7 +6363,7 @@ const I18N_DICT = {
     "langCode": "ru-RU",
     "dir": "ltr",
     "label": "Русский",
-    "docTitle": "Пряжа и Петли | Умный помощник по вязанию крючком",
+    "docTitle": "CROCHETA | Умный помощник по вязанию крючком",
     "brandTitle": "CROCHETA",
     "brandSubtitle": "Умный помощник по вязанию крючком",
     "screenWl": "Экран",
@@ -6609,7 +6630,7 @@ const I18N_DICT = {
     "langCode": "es-ES",
     "dir": "ltr",
     "label": "Español",
-    "docTitle": "Lanas y Puntos | Asistente Inteligente de Crochet",
+    "docTitle": "CROCHETA | Asistente Inteligente de Crochet",
     "brandTitle": "CROCHETA",
     "brandSubtitle": "Asistente Inteligente de Crochet",
     "screenWl": "Pantalla",
@@ -7003,7 +7024,7 @@ function setAppLanguage(lang) {
   applyTranslations(lang);
 
   // Restart voice recognition with new language if active
-  if (isVoiceListeningActive) {
+  if (typeof isVoiceListeningActive !== 'undefined' && isVoiceListeningActive) {
     stopVoiceCounter();
     setTimeout(() => { toggleVoiceCounter(); }, 300);
   }
@@ -8277,6 +8298,38 @@ function askQuickPrompt(promptText) {
 // ═══════════════════════════════════════════════════════
 //  SAMAR AI — MASTER ARTISAN BRAIN & DUAL ENGINE
 // ═══════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════
+//  SAMAR AI CHAT STREAM HELPERS
+// ═══════════════════════════════════════════════════════
+function appendChatMessage(sender, text) {
+  const stream = document.getElementById('aiChatStream');
+  const thinkingBox = document.getElementById('aiThinkingBox');
+  if (!stream) return;
+  const bubble = document.createElement('div');
+  bubble.className = "chat-bubble " + sender;
+
+  if (sender === 'bot') {
+    bubble.innerHTML = (window.marked && marked.parse) ? marked.parse(text) : text.replace(/\n/g, '<br>');
+  } else {
+    bubble.textContent = text;
+  }
+
+  if (thinkingBox && thinkingBox.parentNode === stream) {
+    stream.insertBefore(bubble, thinkingBox);
+  } else {
+    stream.appendChild(bubble);
+  }
+  scrollChatToBottom();
+}
+
+function scrollChatToBottom() {
+  const stream = document.getElementById('aiChatStream');
+  if (stream) {
+    stream.scrollTop = stream.scrollHeight;
+  }
+}
+
 function promptForApiKey() {
   const currentKey = localStorage.getItem('gemini_api_key') || '';
   const newKey = window.prompt(
