@@ -3,46 +3,35 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const DIR = 'C:\\crochet_app';
+const DIR = __dirname;
 let lastUpdate = Date.now();
 
 // Watch for file changes in the directory for live-reload
-fs.watch(DIR, (eventType, filename) => {
-    if (filename && (filename.endsWith('.html') || filename.endsWith('.css') || filename.endsWith('.js'))) {
-        lastUpdate = Date.now();
-    }
-});
+try {
+    fs.watch(DIR, (eventType, filename) => {
+        if (filename && (filename.endsWith('.html') || filename.endsWith('.css') || filename.endsWith('.js') || filename.endsWith('.json'))) {
+            lastUpdate = Date.now();
+        }
+    });
+} catch(e) {}
 
 // Secretly stored Gemini API key on the backend
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
-function getSamarInstruction(lang) {
-    const langMap = {
-        ar: 'Arabic (العربية) with warm, sisterly tone and standard crochet terms',
-        en: 'English with standard US and UK crochet terminology and encouraging tone',
-        de: 'German (Deutsch) with warm, patient, and expert artisan tone and standard Häkeln & Stricken terminology',
-        ja: 'Japanese (日本語) with polite, warm tone and standard かぎ針編み / あみぐるみ terminology',
-        tr: 'Turkish (Türkçe) with warm tone and standard tığ işi terminology',
-        ru: 'Russian (Русский) with friendly, precise tone and standard вязание крючком terminology',
-        es: 'Spanish (Español) with warm tone and standard crochet / ganchillo terminology'
-    };
-    const targetLang = langMap[lang] || langMap.ar;
-
-    return `You are SAMAR (سمر) — an expert, master, and exceptionally encouraging artisan in crochet, amigurumi, knitting, yarn, hooks, and stitches.
-Strict Persona Rules:
-1. Your name is SAMAR. Always introduce yourself as SAMAR, your personal expert crochet & knitting companion 🧶✨.
-2. ALWAYS respond completely and fluently in ${targetLang}.
-3. Strict domain boundary: If asked about topics outside crochet, knitting, yarn, embroidery, or textile craft, politely and firmly decline:
-"I am SAMAR, dedicated solely to the world of crochet, knitting, yarn, and hooks 🧶. Please ask me about any stitch, pattern, gauge, or crafting technique!".
-4. Provide structured, step-by-step guidance, hook sizes in millimeters, and tips to resolve curling, tension, and counting issues.`;
-}
+// SAMAR System Instruction: Dedicated, master crochet & knitting artisan persona
+const SAMAR_SYSTEM_INSTRUCTION = `أنتِ SAMAR (سمر) — خبيرة ومحترفة وصبورة جداً في فنون الكروشيه والحياكة وشغل الصوف والأبر والغرز.
+هويتك وقواعدك الصارمة:
+1. اسمكِ هو SAMAR. إذا سألكِ المستخدم عن اسمك أو من أنتِ، عرّفي بنفسك بلطف: 'أنا SAMAR، خبيرتكِ ومساعدتكِ الشخصية في فنون الكروشيه والحياكة وشغل الصوف والأبر 🧶✨'.
+2. تجيبين باللغة العربية الدافئة والمشجعة، مع خطوات مرتبة ونقاط دقيقة لأي غرزة، باترون، حل مشكلة التواء، أو قياس سنارة وخيط.
+3. قاعدة حاسمة وصارمة جداً: إذا سألكِ المستخدم عن أي شيء خارج نطاق الكروشيه، الحياكة، الخيوط، الصوف، والتطريز (مثل السياسة، الطبخ، الرياضة، الأخبار، البرمجة، المواد الدراسية، إلخ)، ارفضي بلطف وقاطعية قائلة فقط:
+'عذراً يا غالية! أنا SAMAR، مساعدتكِ المتخصصة فقط في عالم الكروشيه والحياكة والخيوط والأبر 🧶. اسأليني عن أي غرزة أو باترونة أو مشكلة تواجهكِ في شغلك وسأجيبكِ فوراً!'.
+4. لا تجيبي أبداً عن أي سؤال خارج تخصص الكروشيه والحياكة مهما كان الطلب.`;
 
 // Call Gemini API securely from backend
-function callGeminiAPI(userMessage, lang = 'ar') {
+function callGeminiAPI(userMessage) {
     return new Promise((resolve, reject) => {
-        const instruction = getSamarInstruction(lang);
         const payload = JSON.stringify({
-            system_instruction: { parts: [{ text: instruction }] },
+            system_instruction: { parts: [{ text: SAMAR_SYSTEM_INSTRUCTION }] },
             contents: [{ role: 'user', parts: [{ text: userMessage }] }],
             generationConfig: { temperature: 0.4, maxOutputTokens: 1400 }
         });
@@ -64,11 +53,12 @@ function callGeminiAPI(userMessage, lang = 'ar') {
             res.on('end', () => {
                 try {
                     const parsed = JSON.parse(data);
-                    if (res.statusCode === 200 && parsed.candidates && parsed.candidates[0]) {
-                        const reply = parsed.candidates[0].content.parts[0].text;
-                        resolve(reply);
+                    if (parsed.candidates && parsed.candidates[0] && parsed.candidates[0].content) {
+                        resolve(parsed.candidates[0].content.parts[0].text);
+                    } else if (parsed.error) {
+                        console.warn('Primary model error, fallback triggered:', parsed.error.message);
+                        callGeminiFallback(payload, resolve, reject);
                     } else {
-                        // Fallback to gemini-flash-latest if needed
                         callGeminiFallback(payload, resolve, reject);
                     }
                 } catch (e) {
@@ -116,6 +106,23 @@ function callGeminiFallback(payload, resolve, reject) {
     req.end();
 }
 
+const MIME_TYPES = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.json': 'application/manifest+json; charset=utf-8',
+    '.webmanifest': 'application/manifest+json; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.svg': 'image/svg+xml',
+    '.apk': 'application/vnd.android.package-archive',
+    '.ico': 'image/x-icon',
+    '.woff2': 'font/woff2',
+    '.woff': 'font/woff',
+    '.ttf': 'font/ttf'
+};
+
 const server = http.createServer((req, res) => {
     // Enable CORS for all requests
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -142,8 +149,7 @@ const server = http.createServer((req, res) => {
                     return;
                 }
 
-                const lang = parsed.lang || 'ar';
-                const reply = await callGeminiAPI(message, lang);
+                const reply = await callGeminiAPI(message);
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
                 res.end(JSON.stringify({ reply }));
             } catch (err) {
@@ -172,23 +178,28 @@ const server = http.createServer((req, res) => {
         filePath = path.join(DIR, 'index.html');
     }
 
-    fs.readFile(filePath, 'utf8', (err, content) => {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+    // Read binary buffer (do NOT use 'utf8' so binary files like PNG/APK are served correctly)
+    fs.readFile(filePath, (err, content) => {
         if (err) {
             res.writeHead(500);
             res.end('Error loading file');
             return;
         }
 
-        const ext = path.extname(filePath).toLowerCase();
-        let contentType = 'text/html; charset=utf-8';
-        if (ext === '.css') contentType = 'text/css';
-        if (ext === '.js') contentType = 'application/javascript';
+        // Service worker needs Service-Worker-Allowed header if applicable
+        if (ext === '.js' && filePath.endsWith('sw.js')) {
+            res.setHeader('Service-Worker-Allowed', '/');
+        }
 
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(content);
     });
 });
 
-server.listen(3000, () => {
-    console.log('Crochet Live Server with SAMAR AI running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`CROCHETA PWA Server running on http://localhost:${PORT}`);
 });

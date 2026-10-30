@@ -10,7 +10,9 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="خيوط وغرز">
+  <meta name="apple-mobile-web-app-title" content="CROCHETA">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.json">
   <!-- PWA Icons — All sizes for Android, iOS, Desktop -->
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
@@ -27,7 +29,7 @@
   <!-- Microsoft Tile -->
   <meta name="msapplication-TileImage" content="icons/icon-144.png">
   <meta name="msapplication-TileColor" content="#7c3aed">
-  <title>خيوط وغرز | الرفيق الذكي للكروشيه</title>
+  <title>CROCHETA | الرفيق الذكي للكروشيه</title>
   
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2424,13 +2426,20 @@
   <!-- ════════════ COMPACT SLIM HEADER ════════════ -->
   <header class="compact-header">
     <div class="brand-wrap" onclick="switchNavTab('patterns')">
-      <div class="brand-badge">🧶</div>
+      <div class="brand-badge" style="padding:0;overflow:hidden;border:1.5px solid rgba(255,255,255,0.45);box-shadow:0 3px 10px rgba(0,0,0,0.3);width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+        <img src="icons/app-logo.jpg" alt="CROCHETA" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
       <div class="brand-text-col">
-        <h1 id="brandTitle">خيوط وغرز</h1>
+        <h1 id="brandTitle" style="letter-spacing:0.5px;font-weight:900;">CROCHETA</h1>
         <p id="brandSubtitle">الرفيق الذكي للكروشيه</p>
       </div>
     </div>
     <div class="header-controls">
+      <!-- PWA Install Button (Appears dynamically when installable) -->
+      <button class="h-btn pwa-header-btn" id="headerPwaInstallBtn" onclick="triggerPwaInstall()" title="تثبيت التطبيق على جهازك | Install App" style="display:none;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;border:none;padding:5px 12px;gap:6px;font-weight:700;border-radius:50px;box-shadow:0 3px 12px rgba(124,58,237,0.35);cursor:pointer;align-items:center;">
+        <i class="fa-solid fa-download"></i>
+        <span style="font-size:0.75rem;">تثبيت التطبيق</span>
+      </button>
 
       <!-- Multi-Language Selector (6 Core Crochet Nations) -->
       <div class="lang-dropdown-container" id="langDropdownContainer">
@@ -9039,13 +9048,61 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
 
 // ═══════════════════════════════════════════════════════
-//  PWA INSTALL PROMPTS
+//  PWA INSTALL PROMPTS & DEFERRED PROMPT SYSTEM
 // ═══════════════════════════════════════════════════════
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const headerBtn = document.getElementById('headerPwaInstallBtn');
+  if (headerBtn) headerBtn.style.display = 'inline-flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  const headerBtn = document.getElementById('headerPwaInstallBtn');
+  if (headerBtn) headerBtn.style.display = 'none';
+  const fab = document.getElementById('apk-download-fab');
+  if (fab) fab.classList.remove('visible');
+  console.log('✓ CROCHETA PWA successfully installed!');
+});
+
+function triggerPwaInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted CROCHETA PWA install prompt');
+      }
+      deferredPrompt = null;
+      const headerBtn = document.getElementById('headerPwaInstallBtn');
+      if (headerBtn) headerBtn.style.display = 'none';
+    });
+  } else {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      const prompt = document.getElementById('ios-pwa-prompt');
+      if (prompt) prompt.classList.add('show');
+    } else {
+      const fab = document.getElementById('apk-download-fab');
+      if (fab) fab.classList.add('visible');
+    }
+  }
+}
+
 (function initPWAPrompts() {
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios/i.test(navigator.userAgent);
   const isStandalone = ('standalone' in navigator && navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
   const isAndroid = /android/i.test(navigator.userAgent);
+
+  // If already running standalone as PWA, hide install prompts
+  if (isStandalone) {
+    const headerBtn = document.getElementById('headerPwaInstallBtn');
+    if (headerBtn) headerBtn.style.display = 'none';
+    return;
+  }
 
   // iOS Prompt — only on Safari/iOS when not already installed
   if (isIOS && isSafari && !isStandalone) {
@@ -9057,11 +9114,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       setTimeout(() => {
         const prompt = document.getElementById('ios-pwa-prompt');
         if (prompt) prompt.classList.add('show');
-      }, 4000); // show after 4 seconds
+      }, 4000);
     }
   }
 
-  // Android APK button — only on Android (not installed as PWA)
+  // Android APK button — shown on Android if not in standalone
   if (isAndroid && !isStandalone) {
     const fab = document.getElementById('apk-download-fab');
     const dismissed = localStorage.getItem('apk_fab_dismissed');
@@ -9293,24 +9350,24 @@ function dismissApkFab() {
   <div id="ios-pwa-prompt" role="dialog" aria-label="تثبيت التطبيق">
     <button class="pwa-prompt-close" onclick="dismissIosPrompt()" aria-label="إغلاق">✕</button>
     <div class="pwa-prompt-header">
-      <img src="icons/icon-180.png" class="pwa-prompt-icon" alt="أيقونة التطبيق">
+      <img src="icons/app-logo.jpg" class="pwa-prompt-icon" alt="CROCHETA">
       <div>
-        <div class="pwa-prompt-title">ثبّتي التطبيق على هاتفكِ 📲</div>
-        <div class="pwa-prompt-sub">خيوط وغرز | رفيقتكِ الذكية للكروشيه</div>
+        <div class="pwa-prompt-title">ثبّتي CROCHETA على هاتفكِ 📲</div>
+        <div class="pwa-prompt-sub">CROCHETA | رفيقتكِ الذكية للكروشيه</div>
       </div>
     </div>
     <div class="pwa-prompt-steps">
       <div class="pwa-step">
         <div class="pwa-step-num">1</div>
-        <span>اضغطي على زر <strong>المشاركة</strong> في متصفحكِ &nbsp;⬆️</span>
+        <span>اضغطي على زر <strong>المشاركة</strong> في متصفح Safari &nbsp;⬆️</span>
       </div>
       <div class="pwa-step">
         <div class="pwa-step-num">2</div>
-        <span>اختاري <strong>"إضافة إلى الشاشة الرئيسية"</strong> &nbsp;➕</span>
+        <span>مرري للأسفل واختاري <strong>"إضافة إلى الشاشة الرئيسية"</strong> &nbsp;➕</span>
       </div>
       <div class="pwa-step">
         <div class="pwa-step-num">3</div>
-        <span>اضغطي <strong>"إضافة"</strong> وستجدين التطبيق جاهزاً! 🧶</span>
+        <span>اضغطي <strong>"إضافة" (Add)</strong> وستجدين CROCHETA جاهزاً! 🧶</span>
       </div>
     </div>
   </div>
@@ -9319,13 +9376,13 @@ function dismissApkFab() {
        APK DOWNLOAD FLOATING BUTTON (Android only)
        ═══════════════════════════════════════════════════ -->
   <div id="apk-download-fab">
-    <a href="https://abdullhfadel2001-cloud.github.io/ALL-WEB/crochet/Crochet_App.apk"
-       download="خيوط-وغرز.apk"
-       onclick="this.closest('#apk-download-fab').style.display='none'">
+    <a href="CROCHETA.apk"
+       download="CROCHETA.apk"
+       onclick="dismissApkFab()">
       <i class="fa-solid fa-android"></i>
-      تحميل التطبيق للأندرويد APK
+      تحميل تطبيق CROCHETA (APK)
     </a>
-    <button class="fab-close" onclick="document.getElementById('apk-download-fab').style.display='none'">إخفاء</button>
+    <button class="fab-close" onclick="dismissApkFab()">إخفاء</button>
   </div>
 
 </body>

@@ -29,14 +29,14 @@ function setupHapticFeedback() {
 const DEFAULT_APPS = [
   {
     id: 'crochet-app',
-    name: 'خيوط وغرز | Crochet Assistant',
-    category: 'web',
-    icon: '🧶',
-    desc: 'الرفيق الذكي للكروشيه والحياكة: باترونات تفاعلية مصورة، عداد حياكة ذكي وصوتي، حاسبات العينة والتسعير بالدينار العراقي وبقايا الخيوط، استوديو ومولّد الباترونات، والمساعدة الذكية SAMAR.',
-    version: 'v3.0',
-    size: '165 KB',
-    downloadUrl: 'downloads/Crochet_App.html',
-    demoUrl: 'crochet/index.html?v=7.0'
+    name: 'CROCHETA | تطبيق الكروشيه الذكي',
+    category: 'android',
+    icon: 'crochet/icons/app-logo.jpg',
+    desc: 'الرفيق الذكي الشامل للكروشيه والأميغورومي: باترونات تفاعلية مصورة، عداد حياكة صوتي بدون لمس، حاسبات الخيوط والتسعير، استوديو الباترونات، ومساعدة SAMAR الذكية. متاح للاستخدام الفوري بالمتصفح، وتثبيت كـ PWA على الشاشة الرئيسية، وتحميل مباشر لملف APK للأندرويد.',
+    version: 'v7.1 (Official)',
+    size: '1.7 MB (APK) / PWA',
+    downloadUrl: 'crochet/CROCHETA.apk',
+    demoUrl: 'crochet/index.html?v=7.1'
   }
 ];
 
@@ -359,7 +359,7 @@ function renderApps() {
 
     card.innerHTML = `
       <div class="card-top">
-        <div class="card-icon">${app.icon || '⚡'}</div>
+        <div class="card-icon" style="padding:0;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.25);">${(app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? `<img src="${esc(app.icon)}" alt="${esc(app.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : (app.icon || '⚡')}</div>
         <div class="card-title-area">
           <div class="card-name">${esc(app.name)}</div>
           <span class="cat-badge ${cat.cls}">${cat.label}</span>

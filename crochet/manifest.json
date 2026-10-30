@@ -1,17 +1,124 @@
 {
-  "name": "خيوط وغرز | Crochet Assistant",
-  "short_name": "خيوط وغرز",
-  "description": "الرفيق الذكي للكروشيه والحياكة، باترونات مصورة، عداد ذكي، وحاسبة خيوط وغرز ومساعدتكِ SAMAR.",
-  "start_url": "./index.html",
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "id": "./?utm_source=pwa",
+  "name": "CROCHETA | الرفيق الذكي للكروشيه",
+  "short_name": "CROCHETA",
+  "description": "CROCHETA — رفيقتكِ الذكية في عالم الكروشيه والأميغورومي — باترونات مصورة، عداد صوتي ذكي، حاسبة خيوط، ومساعدة SAMAR بالذكاء الاصطناعي.",
+  "start_url": "./index.html?utm_source=pwa",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait-primary",
-  "background_color": "#0f172a",
+  "background_color": "#0b0714",
   "theme_color": "#7c3aed",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "lifestyle",
+    "utilities",
+    "education"
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "الباترونات المصورة",
+      "short_name": "الباترونات",
+      "description": "مكتبة الباترونات المصورة الواقعية",
+      "url": "./index.html?tab=patterns&utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "العداد السحري",
+      "short_name": "العداد",
+      "description": "العداد الصوتي الذكي للغرز",
+      "url": "./index.html?tab=counter&utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "استوديو الباترونات",
+      "short_name": "الاستوديو",
+      "description": "استوديو تصميم ومولّد باترونات الكروشيه",
+      "url": "./index.html?tab=studio&utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "SAMAR AI",
+      "short_name": "SAMAR",
+      "description": "مساعدتكِ الذكية للكروشيه",
+      "url": "./index.html?tab=search&utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
   "icons": [
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
@@ -23,3 +130,4 @@
     }
   ]
 }
+
