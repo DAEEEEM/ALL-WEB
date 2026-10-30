@@ -6981,6 +6981,84 @@ const GLOSSARY_I18N = {
 
 
 
+
+// ═══════════════════════════════════════════════════════
+//  HANDS-FREE MULTI-LANGUAGE VOICE COMMANDS CONFIG
+// ═══════════════════════════════════════════════════════
+const VOICE_COMMANDS_CONFIG = {
+  ar: {
+    langCode: 'ar-SA',
+    plus: ['زيد', 'زود', 'فوق', 'التالي', 'واحد', 'سجل', 'اضافة', 'غرزة', 'سطر', 'بعد', 'كمان', 'امشي', 'نعم', 'plus', 'next', 'add'],
+    minus: ['نقص', 'قلل', 'ارجع', 'السابق', 'تحت', 'طرح', 'minus', 'back'],
+    reset: ['صفر', 'تصفير', 'مسح', 'من البداية', 'اعادة', 'reset', 'clear'],
+    prompt: 'جاري الاستماع الصوتي... قولي: "زيد" أو "نقص" أو "تصفير"',
+    heardAdd: '🗣️ سُمع: "<b>زيد</b>" (+1 سطر) ✨',
+    heardSub: '🗣️ سُمع: "<b>نقص</b>" (−1 سطر) ↩️',
+    heardReset: '🗣️ سُمع: "<b>تصفير</b>" (تمت إعادة الضبط بنجاح) ↺'
+  },
+  en: {
+    langCode: 'en-US',
+    plus: ['next', 'plus', 'add', 'increase', 'up', 'one', 'more', 'row', 'stitch'],
+    minus: ['back', 'minus', 'decrease', 'down', 'previous', 'reduce'],
+    reset: ['reset', 'clear', 'zero', 'restart'],
+    prompt: 'Listening hands-free... say: "Next", "Back", or "Reset"',
+    heardAdd: '🗣️ Heard: "<b>Next</b>" (+1 Row) ✨',
+    heardSub: '🗣️ Heard: "<b>Back</b>" (−1 Row) ↩️',
+    heardReset: '🗣️ Heard: "<b>Reset</b>" (Counter reset) ↺'
+  },
+  de: {
+    langCode: 'de-DE',
+    plus: ['weiter', 'plus', 'nächste', 'eins', 'dazu', 'reihe', 'masche', 'vor'],
+    minus: ['zurück', 'minus', 'weniger', 'vorherige'],
+    reset: ['zurücksetzen', 'reset', 'null', 'löschen'],
+    prompt: 'Spracherkennung aktiv... sage: "Weiter" oder "Zurück"',
+    heardAdd: '🗣️ Erkannt: "<b>Weiter</b>" (+1 Reihe) ✨',
+    heardSub: '🗣️ Erkannt: "<b>Zurück</b>" (−1 Reihe) ↩️',
+    heardReset: '🗣️ Erkannt: "<b>Zurücksetzen</b>" ↺'
+  },
+  ja: {
+    langCode: 'ja-JP',
+    plus: ['次', 'プラス', '増やす', '進む', '足す', 'いち', 'アップ', '段'],
+    minus: ['戻る', 'マイナス', '減らす', 'バック', '引く'],
+    reset: ['リセット', 'ゼロ', '最初から', 'クリア'],
+    prompt: '音声認識中... 「次」または「戻る」とお話しください',
+    heardAdd: '🗣️ 認識: 「<b>次</b>」 (+1段) ✨',
+    heardSub: '🗣️ 認識: 「<b>戻る</b>」 (−1段) ↩️',
+    heardReset: '🗣️ 認識: 「<b>リセット</b>」 (初期化完了) ↺'
+  },
+  tr: {
+    langCode: 'tr-TR',
+    plus: ['ileri', 'arttır', 'ekle', 'artı', 'sonraki', 'bir', 'yukarı', 'sıra'],
+    minus: ['geri', 'azalt', 'eksi', 'önceki', 'düşür', 'aşağı'],
+    reset: ['sıfırla', 'temizle', 'baştan', 'sıfır'],
+    prompt: 'Dinleniyor... "İleri" veya "Geri" deyin',
+    heardAdd: '🗣️ Algılandı: "<b>İleri</b>" (+1 Sıra) ✨',
+    heardSub: '🗣️ Algılandı: "<b>Geri</b>" (−1 Sıra) ↩️',
+    heardReset: '🗣️ Algılandı: "<b>Sıfırla</b>" ↺'
+  },
+  ru: {
+    langCode: 'ru-RU',
+    plus: ['дальше', 'плюс', 'прибавить', 'следующий', 'вперед', 'один', 'ряд'],
+    minus: ['назад', 'минус', 'убавить', 'предыдущий'],
+    reset: ['сброс', 'сбросить', 'ноль', 'заново', 'очистить'],
+    prompt: 'Слушаю команды... скажите: "Дальше" или "Назад"',
+    heardAdd: '🗣️ Распознано: "<b>Дальше</b>" (+1 Ряд) ✨',
+    heardSub: '🗣️ Распознано: "<b>Назад</b>" (−1 Ряд) ↩️',
+    heardReset: '🗣️ Распознано: "<b>Сброс</b>" ↺'
+  },
+  es: {
+    langCode: 'es-ES',
+    plus: ['siguiente', 'más', 'aumentar', 'adelante', 'sumar', 'uno', 'fila'],
+    minus: ['atrás', 'menos', 'disminuir', 'anterior', 'restar'],
+    reset: ['reiniciar', 'cero', 'borrar', 'limpiar'],
+    prompt: 'Escuchando... di: "Siguiente" o "Atrás"',
+    heardAdd: '🗣️ Reconocido: "<b>Siguiente</b>" (+1 Fila) ✨',
+    heardSub: '🗣️ Reconocido: "<b>Atrás</b>" (−1 Fila) ↩️',
+    heardReset: '🗣️ Reconocido: "<b>Reiniciar</b>" ↺'
+  }
+};
+
+
 function toggleLangMenu(e) {
   if (e) e.stopPropagation();
   const menu = document.getElementById('langMenu');
@@ -7610,15 +7688,34 @@ function triggerHapticFeedback() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  HANDS-FREE ARABIC VOICE COUNTER (WEB SPEECH API)
+//  HANDS-FREE ARABIC & MULTI-LANG VOICE COUNTER (WEB SPEECH API)
 // ═══════════════════════════════════════════════════════
 let voiceRecognitionInstance = null;
 let isVoiceListeningActive = false;
 
+// Audio beep confirmation using Web Audio API (Zero external assets needed)
+function playVoiceBeep(freq = 600, duration = 0.08) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
 function toggleVoiceCounter() {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) {
-    alert('خاصية التعرف الصوتي غير مدعومة في هذا المتصفح. يمكنكِ استخدام متصفح Chrome أو Edge للاستمتاع بالميزة.');
+    alert('خاصية التحكم الصوتي غير مدعومة مباشرة في هذا المتصفح. يُرجى فتح التطبيق في متصفح Google Chrome أو Microsoft Edge أو Safari للاستمتاع بالحياكة بدون لمس.');
     return;
   }
 
@@ -7631,12 +7728,18 @@ function toggleVoiceCounter() {
 
 function startVoiceCounter(SpeechRec) {
   try {
-    const vCfg = VOICE_COMMANDS_CONFIG[currentAppLang] || VOICE_COMMANDS_CONFIG.ar;
+    const vCfg = (typeof VOICE_COMMANDS_CONFIG !== 'undefined' && VOICE_COMMANDS_CONFIG[currentAppLang]) ? VOICE_COMMANDS_CONFIG[currentAppLang] : VOICE_COMMANDS_CONFIG.ar;
     const t = I18N_DICT[currentAppLang] || I18N_DICT.ar;
+    
+    if (voiceRecognitionInstance) {
+      try { voiceRecognitionInstance.abort(); } catch(e) {}
+    }
+
     voiceRecognitionInstance = new SpeechRec();
-    voiceRecognitionInstance.lang = vCfg.langCode;
+    voiceRecognitionInstance.lang = vCfg.langCode || 'ar-SA';
     voiceRecognitionInstance.continuous = true;
     voiceRecognitionInstance.interimResults = false;
+    voiceRecognitionInstance.maxAlternatives = 3;
 
     voiceRecognitionInstance.onstart = () => {
       isVoiceListeningActive = true;
@@ -7644,30 +7747,43 @@ function startVoiceCounter(SpeechRec) {
       const badge = document.getElementById('voiceStatusBadge');
       if (btn) {
         btn.classList.add('listening');
-        btn.innerHTML = '<i class="fa-solid fa-microphone-lines"></i> <span>' + t.counter.btnVoiceStop + '</span>';
+        btn.innerHTML = '<i class="fa-solid fa-microphone-lines"></i> <span>إيقاف</span>';
       }
-      if (badge) badge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:0.5rem;color:#ef4444;animation:pulseMic 1s infinite;"></i> ' + vCfg.prompt;
+      if (badge) {
+        badge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:0.5rem;color:#ef4444;animation:pulseMic 1s infinite;"></i> ' + vCfg.prompt;
+      }
+      playVoiceBeep(880, 0.1);
     };
 
     voiceRecognitionInstance.onresult = (event) => {
+      if (!event.results || event.results.length === 0) return;
       const lastIndex = event.results.length - 1;
-      const transcript = event.results[lastIndex][0].transcript.trim().toLowerCase();
-      console.log('Voice recognized:', transcript);
+      const resultItem = event.results[lastIndex];
+      let transcript = '';
+      for (let i = 0; i < resultItem.length; i++) {
+        transcript += ' ' + resultItem[i].transcript;
+      }
+      transcript = transcript.trim().toLowerCase();
+      console.log('Voice recognized transcript:', transcript);
       handleVoiceCommand(transcript);
     };
 
     voiceRecognitionInstance.onerror = (event) => {
-      console.warn('Voice recognition error:', event.error);
-      if (event.error === 'not-allowed') {
-        alert('يرجى السماح للتطبيق بالوصول إلى الميكروفون لاستخدام ميزة التحكم الصوتي.');
+      console.warn('Voice recognition notice:', event.error);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        alert('يرجى السماح للتطبيق بالوصول إلى الميكروفون من إعدادات المتصفح حتى تتمكني من عد الغرز بصوتكِ بدون لمس.');
         stopVoiceCounter();
       }
     };
 
     voiceRecognitionInstance.onend = () => {
+      // Smoothly re-listen if active
       if (isVoiceListeningActive) {
-        // Auto-restart to keep hands-free working while crocheting
-        try { voiceRecognitionInstance.start(); } catch(e) {}
+        setTimeout(() => {
+          if (isVoiceListeningActive && voiceRecognitionInstance) {
+            try { voiceRecognitionInstance.start(); } catch(e) {}
+          }
+        }, 250);
       } else {
         stopVoiceCounter();
       }
@@ -7676,6 +7792,7 @@ function startVoiceCounter(SpeechRec) {
     voiceRecognitionInstance.start();
   } catch(e) {
     console.error('Failed to start voice recognition:', e);
+    isVoiceListeningActive = false;
   }
 }
 
@@ -7686,13 +7803,19 @@ function stopVoiceCounter() {
   }
   const btn = document.getElementById('voiceMicBtn');
   const badge = document.getElementById('voiceStatusBadge');
-  if (btn) btn.classList.remove('listening');
-  if (badge) badge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:0.5rem;color:#10b981;"></i> الميكروفون متوقف (اضغطي للبدء)';
+  if (btn) {
+    btn.classList.remove('listening');
+    btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+  }
+  if (badge) {
+    badge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:0.5rem;color:#10b981;"></i> الميكروفون متوقف (اضغطي للبدء)';
+  }
+  playVoiceBeep(350, 0.08);
 }
 
 function handleVoiceCommand(cmd) {
   const badge = document.getElementById('voiceStatusBadge');
-  const vCfg = VOICE_COMMANDS_CONFIG[currentAppLang] || VOICE_COMMANDS_CONFIG.ar;
+  const vCfg = (typeof VOICE_COMMANDS_CONFIG !== 'undefined' && VOICE_COMMANDS_CONFIG[currentAppLang]) ? VOICE_COMMANDS_CONFIG[currentAppLang] : VOICE_COMMANDS_CONFIG.ar;
   
   const isPlus = vCfg.plus.some(w => cmd.includes(w));
   const isMinus = vCfg.minus.some(w => cmd.includes(w));
@@ -7700,15 +7823,23 @@ function handleVoiceCommand(cmd) {
 
   if (isPlus) {
     stepMegaCounter(1);
+    playVoiceBeep(750, 0.07);
+    if (navigator.vibrate) navigator.vibrate(40);
     if (badge) badge.innerHTML = vCfg.heardAdd;
   } else if (isMinus) {
     stepMegaCounter(-1);
+    playVoiceBeep(420, 0.07);
+    if (navigator.vibrate) navigator.vibrate([30, 20]);
     if (badge) badge.innerHTML = vCfg.heardSub;
   } else if (isReset) {
-    resetMegaCounter();
+    // In voice mode, reset directly without blocking confirm popup
+    const el = document.getElementById('megaCounterVal');
+    if (el) el.textContent = 0;
+    localStorage.setItem(LOCAL_STORAGE.MAIN_COUNTER, 0);
+    playVoiceBeep(520, 0.12);
     if (badge) badge.innerHTML = vCfg.heardReset;
   } else {
-    if (badge) badge.innerHTML = '🗣️ "' + cmd + '"';
+    if (badge) badge.innerHTML = '🗣️ "' + cmd + '" (قولي: زيد أو نقص)';
   }
 }
 
