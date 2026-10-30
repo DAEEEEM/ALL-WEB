@@ -36,7 +36,7 @@ const DEFAULT_APPS = [
     version: 'v3.0',
     size: '165 KB',
     downloadUrl: 'downloads/Crochet_App.html',
-    demoUrl: 'crochet/index.html?v=6.0'
+    demoUrl: 'crochet/index.html?v=7.0'
   }
 ];
 

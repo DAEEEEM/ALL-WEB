@@ -2160,18 +2160,17 @@
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    min-width: 220px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
-    padding: 6px;
+    min-width: 240px;
+    background: var(--surface-card) !important;
+    border: 2px solid var(--border-purple) !important;
+    border-radius: 16px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(124, 58, 237, 0.15);
+    padding: 8px;
     display: none;
     flex-direction: column;
-    gap: 4px;
-    z-index: 99999;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    gap: 5px;
+    z-index: 999999;
+    opacity: 1 !important;
     animation: fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   [dir="ltr"] .lang-menu {
@@ -2184,45 +2183,56 @@
   .lang-opt {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 10px;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.15s ease;
+    background: var(--surface) !important;
+    border: 1px solid transparent;
+    transition: all 0.18s ease;
     user-select: none;
+    opacity: 1 !important;
   }
   .lang-opt:hover {
-    background: var(--bg-surface);
-    transform: translateX(-2px);
+    background: var(--primary-light) !important;
+    border-color: var(--primary-mid);
+    transform: translateX(-3px);
   }
   [dir="ltr"] .lang-opt:hover {
-    transform: translateX(2px);
+    transform: translateX(3px);
   }
   .lang-opt.active {
-    background: rgba(168, 85, 247, 0.15);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    font-weight: 700;
+    background: var(--primary-light) !important;
+    border: 1.5px solid var(--primary) !important;
+    font-weight: 800;
   }
   .lang-opt .lang-flag {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .lang-opt .lang-text {
     display: flex;
     flex-direction: column;
     text-align: right;
+    flex: 1;
   }
   [dir="ltr"] .lang-opt .lang-text {
     text-align: left;
   }
   .lang-opt .lang-name {
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     font-weight: 700;
-    color: var(--text-main);
+    color: var(--text) !important;
+    line-height: 1.3;
   }
   .lang-opt .lang-country {
-    font-size: 0.68rem;
-    color: var(--text-muted);
+    font-size: 0.74rem;
+    color: var(--text-muted) !important;
+    line-height: 1.2;
+    margin-top: 1px;
   }
 
   /* LTR document adaptations */
@@ -4690,6 +4700,10 @@ function getLocalizedSvg(svgStr, lang) {
   return res;
 }
 
+let currentAppLang = localStorage.getItem('crochet_app_lang') || 'ar';
+let currentPatternLevelFilter = 'all';
+let currentPatternCategoryFilter = 'all';
+
 const I18N_DICT = {
   "ar": {
     "langCode": "ar-IQ",
@@ -4756,7 +4770,10 @@ const I18N_DICT = {
       },
       "timeUnit": "ساعات",
       "stepsUnit": "خطوات",
-      "yarnBallsUnit": "شلة"
+      "yarnBallsUnit": "شلة",
+      "balls": "شلة",
+      "steps": "خطوات",
+      "progress": "نسبة الإنجاز"
     },
     "studio": {
       "title": "استوديو ومولّد الباترونات الاحترافي",
@@ -5020,7 +5037,10 @@ const I18N_DICT = {
       },
       "timeUnit": "hrs",
       "stepsUnit": "steps",
-      "yarnBallsUnit": "skeins"
+      "yarnBallsUnit": "skeins",
+      "balls": "skeins",
+      "steps": "steps",
+      "progress": "Progress"
     },
     "studio": {
       "title": "Pattern Studio & Graph Generator",
@@ -5284,7 +5304,10 @@ const I18N_DICT = {
       },
       "timeUnit": "Std.",
       "stepsUnit": "Schritte",
-      "yarnBallsUnit": "Knäuel"
+      "yarnBallsUnit": "Knäuel",
+      "balls": "Knäuel",
+      "steps": "Schritte",
+      "progress": "Fortschritt"
     },
     "studio": {
       "title": "Muster-Studio & Diagramm-Generator",
@@ -5548,7 +5571,10 @@ const I18N_DICT = {
       },
       "timeUnit": "時間",
       "stepsUnit": "ステップ",
-      "yarnBallsUnit": "玉"
+      "yarnBallsUnit": "玉",
+      "balls": "玉",
+      "steps": "ステップ",
+      "progress": "進捗"
     },
     "studio": {
       "title": "パターンスタジオ＆編み図ジェネレーター",
@@ -5812,7 +5838,10 @@ const I18N_DICT = {
       },
       "timeUnit": "saat",
       "stepsUnit": "adım",
-      "yarnBallsUnit": "yumak"
+      "yarnBallsUnit": "yumak",
+      "balls": "yumak",
+      "steps": "adım",
+      "progress": "İlerleme"
     },
     "studio": {
       "title": "Tasarım Stüdyosu & Grafik Üretici",
@@ -6076,7 +6105,10 @@ const I18N_DICT = {
       },
       "timeUnit": "ч.",
       "stepsUnit": "шагов",
-      "yarnBallsUnit": "мотков"
+      "yarnBallsUnit": "мотков",
+      "balls": "мотков",
+      "steps": "шагов",
+      "progress": "Прогресс"
     },
     "studio": {
       "title": "Дизайн-студия и генератор схем",
@@ -6340,7 +6372,10 @@ const I18N_DICT = {
       },
       "timeUnit": "h",
       "stepsUnit": "pasos",
-      "yarnBallsUnit": "ovillos"
+      "yarnBallsUnit": "ovillos",
+      "balls": "ovillos",
+      "steps": "pasos",
+      "progress": "Progreso"
     },
     "studio": {
       "title": "Estudio de Patrones y Generador de Gráficos",
@@ -7892,27 +7927,33 @@ function updateWakeLockUI() {
 //  SAMAR AI CHAT: BACKEND SECURE & 100% PRIVATE
 // ═══════════════════════════════════════════════════════
 function loadSamarChatHistory() {
-  const history = JSON.parse(localStorage.getItem(LOCAL_STORAGE.CHAT_HISTORY) || '[]');
-  const stream = document.getElementById('aiChatStream');
-  const thinkingBox = document.getElementById('aiThinkingBox');
+  try {
+    const history = JSON.parse(localStorage.getItem(LOCAL_STORAGE.CHAT_HISTORY) || '[]');
+    const stream = document.getElementById('aiChatStream');
+    const thinkingBox = document.getElementById('aiThinkingBox');
+    if (!stream) return;
 
-  // Keep the welcome greeting
-  const welcome = stream.firstElementChild;
-  stream.innerHTML = '';
-  stream.appendChild(welcome);
-  stream.appendChild(thinkingBox);
+    // Keep the welcome greeting safely
+    const welcome = stream.firstElementChild;
+    stream.innerHTML = '';
+    if (welcome) stream.appendChild(welcome);
+    if (thinkingBox) stream.appendChild(thinkingBox);
 
-  history.forEach(item => {
-    const bubble = document.createElement('div');
-    bubble.className = `chat-bubble ${item.sender}`;
-    if (item.sender === 'bot') {
-      bubble.innerHTML = (window.marked && marked.parse) ? marked.parse(item.text) : item.text.replace(/\n/g, '<br>');
-    } else {
-      bubble.textContent = item.text;
-    }
-    stream.insertBefore(bubble, thinkingBox);
-  });
-  scrollChatToBottom();
+    history.forEach(item => {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${item.sender}`;
+      if (item.sender === 'bot') {
+        bubble.innerHTML = (window.marked && marked.parse) ? marked.parse(item.text) : item.text.replace(/\n/g, '<br>');
+      } else {
+        bubble.textContent = item.text;
+      }
+      if (thinkingBox) stream.insertBefore(bubble, thinkingBox);
+      else stream.appendChild(bubble);
+    });
+    scrollChatToBottom();
+  } catch (err) {
+    console.warn('loadSamarChatHistory caught safely:', err);
+  }
 }
 
 function saveChatMessageToLocal(sender, text) {
@@ -8115,11 +8156,12 @@ function renderPatternCategoryChips() {
     plants: 'flower',
     advanced: 'advanced'
   };
-  bar.innerHTML = CATEGORIES.map((cat, i) => {
+  bar.innerHTML = CATEGORIES.map(cat => {
     const k = catKeyMap[cat.id] || cat.id;
     const label = (t.patterns && t.patterns.cats && t.patterns.cats[k]) ? t.patterns.cats[k] : cat.label;
+    const isActive = (currentPatternCategoryFilter === cat.id);
     return `
-      <button class="cat-chip ${i === 0 ? 'active' : ''}" onclick="filterPatternsByCategory('${cat.id}', this)">
+      <button class="cat-chip ${isActive ? 'active' : ''}" data-cat="${cat.id}" onclick="filterPatternsByCategory('${cat.id}', this)">
         <span>${cat.emoji}</span>
         <span>${label}</span>
       </button>
@@ -8127,38 +8169,51 @@ function renderPatternCategoryChips() {
   }).join('');
 }
 
-function filterPatternsByCategory(catId, btnEl) {
-  document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
-  btnEl.classList.add('active');
-  renderPatternsCatalog(catId);
+function normalizeLevelToken(lvl) {
+  if (!lvl) return 'beginner';
+  lvl = String(lvl).toLowerCase().trim();
+  if (lvl === 'مبتدئ' || lvl === 'beginner' || lvl === 'anfänger' || lvl === '初級' || lvl === 'başlangıç' || lvl === 'начинающий' || lvl === 'principiante') return 'beginner';
+  if (lvl === 'متوسط' || lvl === 'intermediate' || lvl === 'mittel' || lvl === '中級' || lvl === 'orta' || lvl === 'средний' || lvl === 'intermedio') return 'intermediate';
+  if (lvl === 'متقدم' || lvl === 'محترف' || lvl === 'advanced' || lvl === 'fortgeschritten' || lvl === '上級' || lvl === 'ileri' || lvl === 'продвинутый' || lvl === 'avanzado') return 'advanced';
+  return lvl;
 }
 
-let currentPatternLevelFilter = 'all';
-let currentPatternCategoryFilter = 'all';
-
 function filterPatternsByLevel(lvl, btnEl) {
-  currentPatternLevelFilter = lvl;
+  currentPatternLevelFilter = lvl || 'all';
   document.querySelectorAll('.level-chip').forEach(b => b.classList.remove('active'));
   if (btnEl) btnEl.classList.add('active');
   renderPatternsCatalogFiltered();
 }
 
 function filterPatternsByCategory(catId, btnEl) {
-  currentPatternCategoryFilter = catId;
+  currentPatternCategoryFilter = catId || 'all';
   document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
-  if (btnEl) btnEl.classList.add('active');
+  if (btnEl) {
+    btnEl.classList.add('active');
+  } else {
+    const matched = document.querySelector(`.cat-chip[data-cat="${catId}"]`);
+    if (matched) matched.classList.add('active');
+  }
   renderPatternsCatalogFiltered();
 }
 
 function renderPatternsCatalogFiltered() {
   const grid = document.getElementById('patternsGridList');
+  if (!grid) return;
   let items = PATTERNS;
 
-  if (currentPatternCategoryFilter !== 'all') {
-    items = items.filter(p => p.category === currentPatternCategoryFilter);
+  if (currentPatternCategoryFilter && currentPatternCategoryFilter !== 'all') {
+    const cat = currentPatternCategoryFilter;
+    items = items.filter(p => {
+      if (p.category === cat) return true;
+      if (cat === 'shawl' && (p.category === 'shawl' || p.category === 'shawls')) return true;
+      if (cat === 'bag' && (p.category === 'bag' || p.category === 'bags')) return true;
+      if (cat === 'flower' && (p.category === 'flower' || p.category === 'plants')) return true;
+      return false;
+    });
   }
-  if (currentPatternLevelFilter !== 'all') {
-    items = items.filter(p => (p.level || 'beginner') === currentPatternLevelFilter);
+  if (currentPatternLevelFilter && currentPatternLevelFilter !== 'all') {
+    items = items.filter(p => normalizeLevelToken(p.level) === normalizeLevelToken(currentPatternLevelFilter));
   }
 
   renderPatternsToGrid(items);
@@ -8176,18 +8231,31 @@ function renderPatternsToGrid(items) {
   const t = I18N_DICT[lang] || I18N_DICT.ar;
 
   grid.innerHTML = items.map(p => {
-    const savedSteps = JSON.parse(localStorage.getItem(LOCAL_STORAGE.PATTERN_STEP_PREFIX + p.id) || '[]');
+    let savedSteps = [];
+    try {
+      savedSteps = JSON.parse(localStorage.getItem(LOCAL_STORAGE.PATTERN_STEP_PREFIX + p.id) || '[]');
+    } catch(e) {
+      savedSteps = [];
+    }
     const doneCount = savedSteps.filter(Boolean).length;
-    const totalSteps = p.steps.length;
+    const totalSteps = (p.steps && Array.isArray(p.steps)) ? p.steps.length : 0;
     const pct = totalSteps ? Math.round((doneCount / totalSteps) * 100) : 0;
-    const coverArt = PATTERN_COVERS[p.id] || PATTERN_COVERS['ami-bear'];
+    const coverArt = PATTERN_COVERS[p.id] || PATTERN_COVERS['ami-bear'] || '';
 
-    // Get localized pattern texts
+    // Localized pattern texts
     const trans = (PATTERN_I18N[p.id] && PATTERN_I18N[p.id][lang]) ? PATTERN_I18N[p.id][lang] : null;
     const title = trans ? trans.title : p.title;
     const desc = trans ? trans.desc : p.description;
     const time = trans ? trans.time : p.time;
-    const levelLabel = trans ? trans.level : (p.levelLabel || (p.level === 'intermediate' ? t.patterns.levels.int : p.level === 'advanced' ? t.patterns.levels.adv : t.patterns.levels.beg));
+
+    const normLvl = normalizeLevelToken(p.level);
+    const defaultLevelLabel = (normLvl === 'intermediate' ? t.patterns.levels.int : normLvl === 'advanced' ? t.patterns.levels.adv : t.patterns.levels.beg);
+    const levelLabel = trans ? trans.level : (p.levelLabel || defaultLevelLabel);
+
+    const ballsUnit = t.patterns.balls || t.patterns.yarnBallsUnit || (lang === 'ar' ? 'شلة' : 'skeins');
+    const stepsUnit = t.patterns.steps || t.patterns.stepsUnit || (lang === 'ar' ? 'خطوات' : 'steps');
+    const progressLabel = t.patterns.progress || (lang === 'ar' ? 'نسبة الإنجاز' : 'Progress');
+    const localizedHook = (p.hook || '').replace(/مم/g, (lang === 'ar' ? 'مم' : 'mm'));
 
     return `
       <div class="pattern-card-item" onclick="openPatternReaderModal('${p.id}')">
@@ -8202,10 +8270,10 @@ function renderPatternsToGrid(items) {
             </div>
             <p>${desc}</p>
             <div class="pattern-specs-chips">
-              <span class="spec-chip">🪡 ${p.hook}</span>
-              <span class="spec-chip">🧶 ${p.yarnBalls} ${t.patterns.balls}</span>
+              <span class="spec-chip">🪡 ${localizedHook}</span>
+              <span class="spec-chip">🧶 ${p.yarnBalls} ${ballsUnit}</span>
               <span class="spec-chip">⏱️ ${time}</span>
-              <span class="spec-chip">📋 ${totalSteps} ${t.patterns.steps}</span>
+              <span class="spec-chip">📋 ${totalSteps} ${stepsUnit}</span>
             </div>
           </div>
           <div>
@@ -8213,7 +8281,7 @@ function renderPatternsToGrid(items) {
               <div class="prog-fill" style="width:${pct}%"></div>
             </div>
             <div class="prog-labels">
-              <span>${t.patterns.progress}</span>
+              <span>${progressLabel}</span>
               <span>${doneCount}/${totalSteps} (${pct}%)</span>
             </div>
           </div>
@@ -8226,7 +8294,10 @@ function renderPatternsToGrid(items) {
 function toggleGlobalVisuals() {
   globalHideVisuals = !globalHideVisuals;
   const btnText = document.getElementById('globalVisualsText');
-  btnText.textContent = globalHideVisuals ? 'إظهار الصور والرسوم' : 'إخفاء الصور والرسوم';
+  const t = I18N_DICT[currentAppLang] || I18N_DICT.ar;
+  if (btnText) {
+    btnText.textContent = globalHideVisuals ? (t.patterns.visShow || 'إظهار الصور والرسوم') : (t.patterns.visHide || 'إخفاء الصور والرسوم');
+  }
 
   document.querySelectorAll('.step-visuals-panel').forEach(p => {
     p.classList.toggle('hidden-visuals', globalHideVisuals);
@@ -8322,14 +8393,10 @@ function openPatternReaderModal(patternId) {
 
 function closePatternReader() {
   const modal = document.getElementById('patternReaderModal');
-  modal.classList.remove('open');
+  if (modal) modal.classList.remove('open');
   document.body.style.overflow = '';
   activePattern = null;
-
-  const activeChip = document.querySelector('.cat-chip.active');
-  const chipCat = activeChip ? activeChip.textContent.trim() : 'all';
-  const found = CATEGORIES.find(c => chipCat.includes(c.label))?.id || 'all';
-  renderPatternsCatalog(found);
+  renderPatternsCatalogFiltered();
 }
 
 function renderPatternReaderSteps(p) {
