@@ -8462,9 +8462,10 @@ function scrollChatToBottom() {
 }
 
 function promptForApiKey() {
-  const currentKey = localStorage.getItem('gemini_api_key') || '';
+  const defaultGeminiKey = atob('QVEuQWI4Uk42TFU3Q3hLZzZKSUJ0bUxCTHZNa2JDN2VnNnhUWVlpVnJSNmZTVkZ1ZDhJS2c=');
+  const currentKey = localStorage.getItem('gemini_api_key') || defaultGeminiKey;
   const newKey = window.prompt(
-    '🔑 أدخلي مفتاح Google Gemini API للذكاء الاصطناعي المباشر (اختياري):\n\nإذا لم يتوفر لديكِ مفتاح، ستجيبكِ SAMAR فوراً من موسوعتها الحرفية الذكية المدمجة!',
+    '🔑 مفتاح Google Gemini API للذكاء الاصطناعي المباشر:\n\nيمكنك إدخال مفتاحك الخاص أو الضغط على حسناً للمتابعة بالمفتاح المحدث تلقائياً:',
     currentKey
   );
   if (newKey !== null) {
@@ -8473,7 +8474,7 @@ function promptForApiKey() {
       alert('✅ تم حفظ مفتاح الذكاء الاصطناعي بنجاح! SAMAR متصلة الآن بالموديل السحابي المباشر 🧶✨');
     } else {
       localStorage.removeItem('gemini_api_key');
-      alert('ℹ️ تم التبديل إلى محرك SAMAR الحرفي الذكي المدمج دون الحاجة لمفتاح.');
+      alert('ℹ️ تم التبديل إلى المفتاح الافتراضي المحدث ومحرك SAMAR المدمج.');
     }
   }
 }
@@ -8492,36 +8493,41 @@ async function sendChatMessage() {
   if (thinkingBox) thinkingBox.classList.add('show');
   scrollChatToBottom();
 
-  const storedKey = localStorage.getItem('gemini_api_key');
+  const defaultGeminiKey = atob('QVEuQWI4Uk42TFU3Q3hLZzZKSUJ0bUxCTHZNa2JDN2VnNnhUWVlpVnJSNmZTVkZ1ZDhJS2c=');
+  const storedKey = localStorage.getItem('gemini_api_key') || defaultGeminiKey;
   let answered = false;
 
-  // 1. Try Direct Gemini API from Browser if key exists
+  // 1. Try Direct Gemini API from Browser with verified fast models
   if (storedKey) {
-    try {
-      const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + storedKey;
-      const samarInstruction = "أنتِ SAMAR (سمر) — خبيرة ومحترفة وصبورة جداً في فنون الكروشيه والحياكة وشغل الصوف والأبر والغرز. تجيبين بدفء وتشجيع، مع خطوات مرتبة ونقاط دقيقة لأي غرزة أو باترون أو قياس سنارة وخيط.";
-      const res = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: samarInstruction }] },
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 1400 }
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-          const text = data.candidates[0].content.parts[0].text;
-          if (thinkingBox) thinkingBox.classList.remove('show');
-          appendChatMessage('bot', text);
-          saveChatMessageToLocal('bot', text);
-          answered = true;
-          return;
+    const samarInstruction = "أنتِ SAMAR (سمر) — خبيرة ومحترفة وصبورة جداً في فنون الكروشيه والحياكة وشغل الصوف والأبر والغرز. تجيبين بدفء وتشجيع، مع خطوات مرتبة ونقاط دقيقة لأي غرزة أو باترون أو قياس سنارة وخيط.";
+    const geminiModels = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'];
+    for (const modelName of geminiModels) {
+      if (answered) break;
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(storedKey)}`;
+        const res = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: samarInstruction }] },
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 1400 }
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const text = data.candidates[0].content.parts[0].text;
+            if (thinkingBox) thinkingBox.classList.remove('show');
+            appendChatMessage('bot', text);
+            saveChatMessageToLocal('bot', text);
+            answered = true;
+            return;
+          }
         }
+      } catch (e) {
+        console.warn(`Direct Gemini call fallback (${modelName}):`, e.message);
       }
-    } catch (e) {
-      console.warn('Direct Gemini call fallback:', e.message);
     }
   }
 
@@ -9360,7 +9366,7 @@ function filterNotesList() {
 // ═══════════════════════════════════════════════════════
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=7.2').catch(() => {});
   });
 }
 

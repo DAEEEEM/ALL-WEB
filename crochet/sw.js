@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════
-// Service Worker — CROCHETA PWA v7.1
+// Service Worker — CROCHETA PWA v7.2
 // Full Offline Caching, Background Sync, Fast Navigation
 // ═══════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'crocheta-v7.1';
+const CACHE_VERSION = 'crocheta-v7.2';
 const STATIC_CACHE = `crocheta-static-${CACHE_VERSION}`;
 const CDN_CACHE = `crocheta-cdn-${CACHE_VERSION}`;
 
