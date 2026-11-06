@@ -8494,6 +8494,10 @@ async function sendChatMessage() {
   scrollChatToBottom();
 
   const defaultGeminiKey = atob('QVEuQWI4Uk42TFU3Q3hLZzZKSUJ0bUxCTHZNa2JDN2VnNnhUWVlpVnJSNmZTVkZ1ZDhJS2c=');
+  // Auto-migrate: ensure any old stored key is replaced by the new key
+  if (localStorage.getItem('gemini_api_key') && localStorage.getItem('gemini_api_key') !== defaultGeminiKey) {
+    localStorage.setItem('gemini_api_key', defaultGeminiKey);
+  }
   const storedKey = localStorage.getItem('gemini_api_key') || defaultGeminiKey;
   let answered = false;
 
