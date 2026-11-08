@@ -1369,3 +1369,112 @@ function setupVideoDownloader() {
     }
   });
 }
+
+// ---------------------------------------------------------------------------
+// Elastic Sliding Pill Navigation (GSAP) – Added by Antigravity
+// ---------------------------------------------------------------------------
+function slidePill(pill, targetItem) {
+  if (!pill || !targetItem) return;
+  const navContainer = pill.parentElement;
+  const navRect = navContainer.getBoundingClientRect();
+  const itemRect = targetItem.getBoundingClientRect();
+  const targetTop = itemRect.top - navRect.top;
+  const targetHeight = itemRect.height;
+
+  gsap.killTweensOf(pill);
+  const currentTop = parseFloat(gsap.getProperty(pill, "top")) || 0;
+  const currentHeight = parseFloat(gsap.getProperty(pill, "height")) || targetHeight;
+
+  if (targetTop >= currentTop) {
+    // Moving Downwards: leading bottom edge animates fast, trailing top edge follows smoothly
+    gsap.to(pill, {
+      duration: 0.20,
+      ease: "power2.out",
+      height: (targetTop - currentTop) + targetHeight
+    });
+    gsap.to(pill, {
+      duration: 0.35,
+      ease: "power2.inOut",
+      top: targetTop,
+      height: targetHeight
+    });
+  } else {
+    // Moving Upwards: leading top edge animates fast, trailing bottom edge follows smoothly
+    gsap.to(pill, {
+      duration: 0.20,
+      ease: "power2.out",
+      top: targetTop,
+      height: (currentTop - targetTop) + currentHeight
+    });
+    gsap.to(pill, {
+      duration: 0.35,
+      ease: "power2.inOut",
+      height: targetHeight
+    });
+  }
+}
+
+function initSidebarNavigation() {
+  const pill = document.querySelector('.sidebar .pill');
+  const navItems = document.querySelectorAll('.sidebar .nav-item');
+  if (!navItems.length) return;
+
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      if (pill) slidePill(pill, item);
+
+      const targetId = item.dataset.target;
+      if (targetId) {
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+
+  // Observe sections on scroll to update active pill automatically
+  const sectionIds = ['hero', 'downloader', 'speedtest', 'apps'];
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const activeNav = document.querySelector(`.sidebar .nav-item[data-target="${entry.target.id}"]`);
+        if (activeNav && !activeNav.classList.contains('active')) {
+          navItems.forEach(i => i.classList.remove('active'));
+          activeNav.classList.add('active');
+          if (pill) slidePill(pill, activeNav);
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // Initial position on page load
+  const first = document.querySelector('.sidebar .nav-item.active') || navItems[0];
+  if (first && pill) {
+    const navRect = pill.parentElement.getBoundingClientRect();
+    const itemRect = first.getBoundingClientRect();
+    const initTop = itemRect.top - navRect.top;
+    gsap.set(pill, { top: initTop, height: itemRect.height });
+  }
+}
+
+// Ensure GSAP is loaded before we run the navigation init
+function initDashboard() {
+  if (typeof gsap !== 'undefined') {
+    initSidebarNavigation();
+  } else {
+    setTimeout(initDashboard, 50);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDashboard();
+});

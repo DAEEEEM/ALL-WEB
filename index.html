@@ -49,6 +49,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body data-theme="dark">
+  <!-- Sidebar Navigation with Elastic Sliding Pill -->
+  <nav class="sidebar">
+    <ul class="nav-list">
+      <li class="nav-item active" data-target="hero"><a href="#">الرئيسية</a></li>
+      <li class="nav-item" data-target="downloader"><a href="#">تنزيل الفيديو</a></li>
+      <li class="nav-item" data-target="speedtest"><a href="#">فحص السرعة</a></li>
+      <li class="nav-item" data-target="apps"><a href="#">التطبيقات</a></li>
+      <li class="nav-item" data-target="about"><a href="#">عن المنصة</a></li>
+    </ul>
+    <div class="pill"></div>
+  </nav>
+  <main class="content">
 
   <!-- خلفية البرق والجزيئات الكهربائية الحية -->
   <canvas id="electricCanvas" class="electric-canvas"></canvas>
@@ -425,6 +437,7 @@
       </div>
     </div>
   </section>
+  </main>
 
   <!-- تذييل الصفحة Footer -->
   <footer class="cyber-footer">
@@ -443,6 +456,8 @@
     <span id="toastMsg" class="toast-msg"></span>
   </div>
 
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="script.js?v=21.0"></script>
 </body>
 </html>
