@@ -2,7 +2,7 @@
 // DAEM PWA Service Worker (Offline Cache & Network Engine)
 // ==========================================================================
 
-const CACHE_NAME = 'daem-core-v52.0';
+const CACHE_NAME = 'daem-core-v54.0';
 
 // ----------------------------------------------------
 // مرحلة التثبيت: Install Event (تخطي الانتظار فورا)
