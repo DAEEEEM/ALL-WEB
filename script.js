@@ -349,7 +349,7 @@ function renderApps() {
     const actionLabel = isSanad ? '📲 تثبيت مباشر (APK/PWA)' : (app.category === 'web' ? '💾 تنزيل ملف أوفلاين (HTML)' : '⬇️ DOWNLOAD');
 
     const demoBtn = app.demoUrl && app.demoUrl !== '#'
-      ? `<a href="${esc(app.demoUrl)}" target="_blank" class="btn-demo">👁️ تشغيل كالويب وتثبيت كتطبيق</a>`
+      ? `<a href="${safeUrl(app.demoUrl)}" target="_blank" class="btn-demo">👁️ تشغيل كالويب وتثبيت كتطبيق</a>`
       : '';
 
     const delBtn = isOfficial ? '' : `<button class="btn-del del-trigger" data-id="${app.id}" title="حذف">🗑️</button>`;
@@ -359,7 +359,7 @@ function renderApps() {
 
     card.innerHTML = `
       <div class="card-top">
-        <div class="card-icon" style="padding:0;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.25);">${(app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? `<img src="${esc(app.icon)}" alt="${esc(app.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : (app.icon || '⚡')}</div>
+        <div class="card-icon" style="padding:0;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.25);">${(app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? `<img src="${safeUrl(app.icon)}" alt="${esc(app.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : (app.icon || '⚡')}</div>
         <div class="card-title-area">
           <div class="card-name">${esc(app.name)}</div>
           <span class="cat-badge ${cat.cls}">${cat.label}</span>
@@ -372,9 +372,9 @@ function renderApps() {
         <span class="meta-pill">⚡ تثبيت فوري</span>
       </div>
       <div class="card-actions">
-        <a href="${esc(app.downloadUrl)}" ${dlAttr} class="btn-dl">${actionLabel}</a>
+        <a href="${safeUrl(app.downloadUrl)}" ${dlAttr} class="btn-dl">${actionLabel}</a>
         ${demoBtn}
-        ${app.zipUrl ? `<a href="${esc(app.zipUrl)}" download class="btn-demo" style="border-color: rgba(168,85,247,0.5); color: #c084fc;">📦 تنزيل المشروع كامل (ZIP)</a>` : ''}
+        ${app.zipUrl ? `<a href="${safeUrl(app.zipUrl)}" download class="btn-demo" style="border-color: rgba(168,85,247,0.5); color: #c084fc;">📦 تنزيل المشروع كامل (ZIP)</a>` : ''}
         ${delBtn}
       </div>`;
 
@@ -395,6 +395,13 @@ function esc(str) {
   const d = document.createElement('div');
   d.textContent = str;
   return d.innerHTML;
+}
+
+function safeUrl(url) {
+  if (!url) return '#';
+  const clean = String(url).trim();
+  if (/^(javascript|data|vbscript):/i.test(clean)) return '#';
+  return esc(clean);
 }
 
 // ==========================================================================

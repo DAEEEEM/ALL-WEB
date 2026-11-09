@@ -13,6 +13,11 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
+  <!-- Security Hardening (OWASP Best Practices) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; form-action 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
   <!-- Primary Meta Tags -->
   <title>DAEM | Digital Platform</title>
   <meta name="title" content="DAEM | Digital Platform">
