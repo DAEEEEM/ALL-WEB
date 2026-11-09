@@ -11,6 +11,13 @@
   "lang": "ar",
   "dir": "rtl",
   "categories": ["utilities", "productivity", "developer"],
+  "id": "/daem-platform",
+  "prefer_related_applications": false,
+  "share_target": {
+    "action": "./index.html#downloader",
+    "method": "GET",
+    "params": { "text": "videoUrl" }
+  },
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -36,7 +43,31 @@
       "src": "preview.png",
       "sizes": "1024x571",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "DAEM Digital Platform - Desktop View"
+    },
+    {
+      "src": "preview.jpg",
+      "sizes": "400x800",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "DAEM Digital Platform - Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "فحص السرعة",
+      "short_name": "السرعة",
+      "description": "قياس سرعة الإنترنت الآن",
+      "url": "./index.html#speedtest",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تنزيل فيديو",
+      "short_name": "تنزيل",
+      "description": "تنزيل مقاطع الفيديو من كل المنصات",
+      "url": "./index.html#downloader",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -547,6 +547,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCyberSpeedTest();
   setupPWA();
   setupVideoDownloader();
+
+  // ميزات المجتمع الجديدة
+  setupVisitorCounter();
+  setupNotifications();
+  setupComments();
+  setupSidebarNavCommunity();
 });
 
 
@@ -1528,4 +1534,291 @@ function initDashboard() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initDashboard();
+});
+
+
+// ==========================================================================
+// عداد الزوار (Visitor Counter) – CountAPI مجاناً بدون حساب
+// ==========================================================================
+async function setupVisitorCounter() {
+  const countEl = document.getElementById('visitorCount');
+  if (!countEl) return;
+
+  const NAMESPACE = 'daem-platform';
+  const KEY       = 'page-visits';
+  const HIT_URL   = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
+  const GET_URL   = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}`;
+
+  // هل هذه أول زيارة لهذه الجلسة؟
+  const alreadyCounted = sessionStorage.getItem('daem_visit_counted');
+
+  try {
+    let data;
+    if (!alreadyCounted) {
+      const res = await fetch(HIT_URL);
+      data = await res.json();
+      sessionStorage.setItem('daem_visit_counted', '1');
+    } else {
+      const res = await fetch(GET_URL);
+      data = await res.json();
+    }
+    const count = data.count ?? data.value ?? 0;
+    animateCounter(countEl, count);
+  } catch (e) {
+    // Fallback: localStorage estimate
+    let local = parseInt(localStorage.getItem('daem_local_visits') || '0') + 1;
+    localStorage.setItem('daem_local_visits', local);
+    animateCounter(countEl, local);
+  }
+}
+
+function animateCounter(el, target) {
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 60));
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current.toLocaleString('ar');
+    if (current >= target) clearInterval(timer);
+  }, 20);
+}
+
+// ==========================================================================
+// نظام الإشعارات (Web Push Notifications)
+// ==========================================================================
+function setupNotifications() {
+  const btn     = document.getElementById('notifyBtn');
+  const btnIcon = document.getElementById('notifyBtnIcon');
+  const btnText = document.getElementById('notifyBtnText');
+  if (!btn) return;
+
+  // هل المتصفح يدعم الإشعارات؟
+  if (!('Notification' in window)) {
+    btn.style.display = 'none';
+    return;
+  }
+
+  function updateBtnState(permission) {
+    if (permission === 'granted') {
+      btnIcon.textContent = '✅';
+      btnText.textContent = 'الإشعارات مفعّلة';
+      btn.classList.add('granted');
+      btn.disabled = true;
+    } else if (permission === 'denied') {
+      btnIcon.textContent = '🔕';
+      btnText.textContent = 'الإشعارات محظورة';
+      btn.style.opacity = '0.5';
+      btn.disabled = true;
+    }
+  }
+
+  // تطبيق الحالة الحالية
+  updateBtnState(Notification.permission);
+
+  btn.addEventListener('click', async () => {
+    haptic(50);
+    if (Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      updateBtnState(permission);
+      if (permission === 'granted') {
+        toast('✅ تم تفعيل الإشعارات! ستصلك تنبيهات عند كل جديد على DAEM.');
+        // إرسال إشعار ترحيبي فوري
+        new Notification('⚡ أهلاً بك في DAEM!', {
+          body: 'سيصلك إشعار فوري عند نزول أي تطبيق أو تحديث جديد على المنصة.',
+          icon: 'icons/icon-192.png',
+          badge: 'icons/icon-192.png',
+          tag: 'daem-welcome',
+          dir: 'rtl',
+          lang: 'ar'
+        });
+      }
+    }
+  });
+}
+
+// ==========================================================================
+// نظام التعليقات – Firebase مع localStorage Fallback
+// ==========================================================================
+const COMMENTS_KEY = 'daem_comments_v2';
+
+function getLocalComments() {
+  try { return JSON.parse(localStorage.getItem(COMMENTS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveLocalComment(comment) {
+  const list = getLocalComments();
+  list.unshift(comment);
+  if (list.length > 50) list.length = 50; // احتفظ بآخر 50 فقط
+  localStorage.setItem(COMMENTS_KEY, JSON.stringify(list));
+}
+
+function formatRelativeTime(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1)  return 'الآن';
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return `منذ ${hrs} ساعة`;
+  const days = Math.floor(hrs / 24);
+  return `منذ ${days} يوم`;
+}
+
+function renderComments(comments) {
+  const list = document.getElementById('commentsList');
+  if (!list) return;
+
+  if (!comments.length) {
+    list.innerHTML = '<p class="comments-empty">لا توجد تعليقات حتى الآن. كن أول من يعلّق! ⚡</p>';
+    return;
+  }
+
+  list.innerHTML = comments.map(c => {
+    const initials = c.name ? c.name.trim().charAt(0).toUpperCase() : '؟';
+    const displayName = c.name?.trim() || 'زائر';
+    const time = formatRelativeTime(c.timestamp);
+    return `
+      <div class="comment-card">
+        <div class="comment-header">
+          <div class="comment-avatar">${initials}</div>
+          <span class="comment-name">${esc(displayName)}</span>
+          <span class="comment-time">${esc(time)}</span>
+        </div>
+        <div class="comment-body">${esc(c.text)}</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadComments() {
+  const db    = window._daemDB;
+  const fire  = window._daemFire;
+
+  if (db && fire) {
+    try {
+      const q   = fire.query(fire.collection(db, 'daem-comments'), fire.orderBy('timestamp', 'desc'), fire.limit(30));
+      const snap = await fire.getDocs(q);
+      const comments = snap.docs.map(d => ({ ...d.data(), timestamp: d.data().timestamp?.toMillis?.() || Date.now() }));
+      renderComments(comments);
+      return;
+    } catch (e) { /* fallback to localStorage */ }
+  }
+  renderComments(getLocalComments());
+}
+
+async function submitComment(name, text) {
+  const comment = {
+    name: name.trim() || 'زائر',
+    text: text.trim(),
+    timestamp: Date.now()
+  };
+
+  const db   = window._daemDB;
+  const fire = window._daemFire;
+
+  if (db && fire) {
+    try {
+      await fire.addDoc(fire.collection(db, 'daem-comments'), {
+        ...comment,
+        timestamp: fire.serverTimestamp()
+      });
+    } catch (e) { saveLocalComment(comment); }
+  } else {
+    saveLocalComment(comment);
+  }
+
+  await loadComments();
+  toast('💬 تم إرسال تعليقك بنجاح! شكراً ⚡');
+}
+
+function setupComments() {
+  const nameInput   = document.getElementById('commentName');
+  const textInput   = document.getElementById('commentText');
+  const submitBtn   = document.getElementById('submitComment');
+  const emojiPicks  = document.querySelectorAll('.emoji-pick');
+
+  // تحميل التعليقات الحالية
+  if (document.readyState === 'loading') {
+    document.addEventListener('daem-firebase-ready', loadComments);
+    document.addEventListener('DOMContentLoaded', () => setTimeout(loadComments, 500));
+  } else {
+    setTimeout(loadComments, 500);
+  }
+
+  // إضافة إيموجي للنص
+  emojiPicks.forEach(em => {
+    em.addEventListener('click', () => {
+      if (textInput) textInput.value += em.dataset.emoji;
+      textInput?.focus();
+    });
+  });
+
+  // إرسال التعليق
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      const text = textInput?.value?.trim() || '';
+      if (!text || text.length < 2) {
+        toast('⚠️ الرجاء كتابة تعليق أولاً');
+        return;
+      }
+      haptic(60);
+      submitBtn.disabled = true;
+      await submitComment(nameInput?.value || '', text);
+      if (textInput) textInput.value = '';
+      if (nameInput) nameInput.value = '';
+      submitBtn.disabled = false;
+    });
+  }
+
+  if (textInput) {
+    textInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) submitBtn?.click();
+    });
+  }
+}
+
+function setupSidebarNavCommunity() {
+  // تأكد أن الـ sidebar navigation يتعامل مع قسم community
+  const sectionIds = ['hero', 'downloader', 'speedtest', 'apps', 'community'];
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+  const navItems = document.querySelectorAll('.sidebar .nav-item');
+
+  if (!sections.length || !navItems.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const matchNav = document.querySelector(`.sidebar .nav-item[data-target="${id}"]`);
+        if (matchNav && !matchNav.classList.contains('active')) {
+          navItems.forEach(i => i.classList.remove('active'));
+          matchNav.classList.add('active');
+          const pill = document.querySelector('.sidebar .pill');
+          if (pill && window.slidePill) window.slidePill(pill, matchNav);
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+}
+
+// تصدير slidePill للاستخدام الخارجي
+document.addEventListener('DOMContentLoaded', () => {
+  window.slidePill = function(pill, targetItem) {
+    if (!pill || !targetItem || typeof gsap === 'undefined') return;
+    const navRect = pill.parentElement.getBoundingClientRect();
+    const itemRect = targetItem.getBoundingClientRect();
+    const targetTop = itemRect.top - navRect.top;
+    const targetHeight = itemRect.height;
+    const currentTop = parseFloat(gsap.getProperty(pill, "top")) || 0;
+    const currentHeight = parseFloat(gsap.getProperty(pill, "height")) || targetHeight;
+
+    gsap.killTweensOf(pill);
+    if (targetTop >= currentTop) {
+      gsap.to(pill, { duration: 0.20, ease: "power2.out", height: (targetTop - currentTop) + targetHeight });
+      gsap.to(pill, { duration: 0.35, ease: "power2.inOut", top: targetTop, height: targetHeight });
+    } else {
+      gsap.to(pill, { duration: 0.20, ease: "power2.out", top: targetTop, height: (currentTop - targetTop) + currentHeight });
+      gsap.to(pill, { duration: 0.35, ease: "power2.inOut", height: targetHeight });
+    }
+  };
 });

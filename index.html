@@ -61,7 +61,7 @@
       <li class="nav-item" data-target="downloader"><a href="#">تنزيل الفيديو</a></li>
       <li class="nav-item" data-target="speedtest"><a href="#">فحص السرعة</a></li>
       <li class="nav-item" data-target="apps"><a href="#">التطبيقات</a></li>
-      <li class="nav-item" data-target="about"><a href="#">عن المنصة</a></li>
+      <li class="nav-item" data-target="community"><a href="#">المجتمع 💬</a></li>
     </ul>
     <div class="pill"></div>
   </nav>
@@ -444,6 +444,65 @@
   </section>
   </main>
 
+  <!-- ============================================================ -->
+  <!-- قسم التعليقات والإشعارات وعداد الزوار                        -->
+  <!-- ============================================================ -->
+  <section class="daem-community-section" id="community">
+    <div class="community-container">
+
+      <!-- عداد الزوار -->
+      <div class="visitor-counter-bar">
+        <div class="visitor-inner">
+          <span class="visitor-icon">👁️</span>
+          <span class="visitor-label">زوار المنصة</span>
+          <span class="visitor-count" id="visitorCount">...</span>
+          <span class="visitor-live-dot"></span>
+          <span class="visitor-live-label">مباشر</span>
+        </div>
+        <!-- زر الإشعارات -->
+        <button id="notifyBtn" class="cyber-btn notify-btn">
+          <span id="notifyBtnIcon">🔔</span>
+          <span id="notifyBtnText">فعّل الإشعارات</span>
+        </button>
+      </div>
+
+      <!-- قسم التعليقات -->
+      <div class="comments-section">
+        <div class="section-hud-header">
+          <div class="hud-badge-line">
+            <span class="hud-badge-text">COMMUNITY // آراء الزوار</span>
+          </div>
+          <h2 class="section-heading"><span class="neon-title">💬 التعليقات</span></h2>
+        </div>
+
+        <!-- نموذج إضافة تعليق -->
+        <div class="comment-form-box">
+          <div class="comment-form-row">
+            <input type="text" id="commentName" class="comment-input" placeholder="اسمك (اختياري)" maxlength="40">
+            <button id="submitComment" class="cyber-btn cyber-btn-glow comment-submit-btn">
+              <span>⚡ إرسال</span>
+            </button>
+          </div>
+          <textarea id="commentText" class="comment-textarea" placeholder="اكتب رأيك أو ملاحظتك عن المنصة..." maxlength="300" rows="3"></textarea>
+          <div class="comment-emoji-bar">
+            <span class="emoji-pick" data-emoji="⚡">⚡</span>
+            <span class="emoji-pick" data-emoji="🚀">🚀</span>
+            <span class="emoji-pick" data-emoji="🔥">🔥</span>
+            <span class="emoji-pick" data-emoji="💎">💎</span>
+            <span class="emoji-pick" data-emoji="👏">👏</span>
+            <span class="emoji-pick" data-emoji="❤️">❤️</span>
+          </div>
+        </div>
+
+        <!-- قائمة التعليقات -->
+        <div id="commentsList" class="comments-list">
+          <!-- يتم تحميلها عبر JS -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- تذييل الصفحة Footer -->
   <footer class="cyber-footer">
     <div class="footer-wrap">
@@ -461,8 +520,39 @@
     <span id="toastMsg" class="toast-msg"></span>
   </div>
 
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, addDoc, getDocs, orderBy, query, limit, serverTimestamp }
+      from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDAEM-placeholder-replace-with-yours",
+      authDomain:        "daem-platform.firebaseapp.com",
+      projectId:         "daem-platform",
+      storageBucket:     "daem-platform.appspot.com",
+      messagingSenderId: "000000000000",
+      appId:             "1:000000000000:web:daem000000000000"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch(e) {
+      console.warn('Firebase not configured yet. Using localStorage fallback.');
+    }
+
+    window._daemDB = db;
+    window._daemFire = {
+      collection, addDoc, getDocs, orderBy, query, limit, serverTimestamp
+    };
+
+    document.dispatchEvent(new Event('daem-firebase-ready'));
+  </script>
+
   <!-- GSAP Animation Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="script.js?v=21.0"></script>
+  <script src="script.js?v=22.0"></script>
 </body>
 </html>
