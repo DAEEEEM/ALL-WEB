@@ -60,6 +60,7 @@
       <li class="nav-item active" data-target="hero"><a href="#">الرئيسية</a></li>
       <li class="nav-item" data-target="downloader"><a href="#">تنزيل الفيديو</a></li>
       <li class="nav-item" data-target="speedtest"><a href="#">فحص السرعة</a></li>
+      <li class="nav-item" data-target="resistor"><a href="#">المقاومات ⚡</a></li>
       <li class="nav-item" data-target="apps"><a href="#">التطبيقات</a></li>
       <li class="nav-item" data-target="community"><a href="#">المجتمع 💬</a></li>
     </ul>
@@ -92,6 +93,10 @@
       </div>
 
       <div class="nav-controls">
+        <a href="#resistor" class="nav-shortcut-link" title="حاسبة ألوان المقاومات الكهربائية">
+          <span>⚡ المقاومات</span>
+        </a>
+
         <a href="#community" class="nav-shortcut-link" title="آراء الزوار والتعليقات">
           <span>💬 آراء الزوار</span>
         </a>
@@ -430,6 +435,111 @@
           <button id="startSpeedTestBtn" class="cyber-btn cyber-btn-large cyber-btn-glow">
             <span>⚡ ابدأ فحص السرعة // START TEST</span>
           </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================== -->
+  <!-- قسم الأدوات الهندسية: حاسبة ألوان المقاومات الكهربائية والإلكترونية         -->
+  <!-- ======================================================================== -->
+  <section class="resistor-section" id="resistor">
+    <div class="resistor-container">
+      <div class="section-hud-header">
+        <div class="hud-badge-line">
+          <span class="hud-badge-text">ELECTRICAL ENGINEERING // حاسبة المقاومات الإلكترونية</span>
+        </div>
+        <h2 class="section-heading"><span class="neon-title">Resistor Color Code</span></h2>
+        <p class="section-subtext">أداة تفاعلية متقدمة لمهندسي الكهرباء والإلكترونيات لحساب وتحديد قيم المقاومات (4 أو 5 حلقات) بدقة مع نسبة التفاوت (Tolerance) بالأوم والكيلو والميجا.</p>
+      </div>
+
+      <div class="resistor-card">
+        <!-- أزرار تبديل نمط المقاومة (4 حلقات أو 5 حلقات) -->
+        <div class="resistor-mode-toggle">
+          <button type="button" class="res-mode-btn active" id="btnMode4" data-bands="4">
+            <span>🔘 4 حلقات (4 Bands - القياسية)</span>
+          </button>
+          <button type="button" class="res-mode-btn" id="btnMode5" data-bands="5">
+            <span>🔘 5 حلقات (5 Bands - الدقيقة)</span>
+          </button>
+        </div>
+
+        <!-- مجسم المقاومة البصري التفاعلي ثلاثي الأبعاد -->
+        <div class="resistor-visual-stage">
+          <div class="resistor-wire wire-left"></div>
+          <div class="resistor-body" id="resistorBody">
+            <div class="resistor-band-slot band-slot-1" id="visBand1" title="الحلقة 1"></div>
+            <div class="resistor-band-slot band-slot-2" id="visBand2" title="الحلقة 2"></div>
+            <div class="resistor-band-slot band-slot-3" id="visBand3" title="الحلقة 3"></div>
+            <div class="resistor-band-slot band-slot-4" id="visBand4" title="الحلقة 4"></div>
+            <div class="resistor-band-slot band-slot-5" id="visBand5" title="الحلقة 5" style="display: none;"></div>
+          </div>
+          <div class="resistor-wire wire-right"></div>
+        </div>
+
+        <!-- بطاقة النتيجة الرقمية النيون -->
+        <div class="resistor-display-hud">
+          <div class="res-value-wrap">
+            <span class="res-value-title">قيمة المقاومة الإجمالية:</span>
+            <div class="res-val-big" id="resFinalValue">10 kΩ</div>
+            <span class="res-val-sub" id="resRawValue">10,000 Ω (أوم)</span>
+          </div>
+          <div class="res-specs-wrap">
+            <div class="spec-pill">
+              <span class="spec-label">نسبة التفاوت (Tolerance):</span>
+              <span class="spec-val" id="resTolerance">± 5% (ذهبي)</span>
+            </div>
+            <div class="spec-pill">
+              <span class="spec-label">نطاق المقاومة الفعلي:</span>
+              <span class="spec-val" id="resRange">9.5 kΩ - 10.5 kΩ</span>
+            </div>
+          </div>
+          <button type="button" class="cyber-btn cyber-btn-small res-copy-btn" id="btnCopyResValue">
+            <span>📋 نسخ القيمة</span>
+          </button>
+        </div>
+
+        <!-- أدوات اختيار الألوان لكل حلقة (Color Selectors Grid) -->
+        <div class="band-selectors-grid" id="bandSelectorsGrid">
+          <!-- Band 1 Selector -->
+          <div class="band-col" id="colBand1">
+            <span class="band-col-title">الحلقة 1 (الرقم 1)</span>
+            <select class="band-select" id="selBand1"></select>
+          </div>
+          <!-- Band 2 Selector -->
+          <div class="band-col" id="colBand2">
+            <span class="band-col-title">الحلقة 2 (الرقم 2)</span>
+            <select class="band-select" id="selBand2"></select>
+          </div>
+          <!-- Band 3 Selector -->
+          <div class="band-col" id="colBand3">
+            <span class="band-col-title" id="titleBand3">الحلقة 3 (المعامل)</span>
+            <select class="band-select" id="selBand3"></select>
+          </div>
+          <!-- Band 4 Selector -->
+          <div class="band-col" id="colBand4">
+            <span class="band-col-title" id="titleBand4">الحلقة 4 (التفاوت)</span>
+            <select class="band-select" id="selBand4"></select>
+          </div>
+          <!-- Band 5 Selector -->
+          <div class="band-col" id="colBand5" style="display: none;">
+            <span class="band-col-title">الحلقة 5 (التفاوت)</span>
+            <select class="band-select" id="selBand5"></select>
+          </div>
+        </div>
+
+        <!-- مقاومات قياسية شهيرة بنقرة واحدة -->
+        <div class="res-presets-wrap">
+          <span class="presets-title">⚡ مقاومات شائعة في الدوائر:</span>
+          <div class="presets-chips">
+            <button type="button" class="res-preset-chip" data-val="220">220 Ω (LED)</button>
+            <button type="button" class="res-preset-chip" data-val="330">330 Ω (حماية)</button>
+            <button type="button" class="res-preset-chip" data-val="1000">1 kΩ (سحب)</button>
+            <button type="button" class="res-preset-chip" data-val="4700">4.7 kΩ (I2C)</button>
+            <button type="button" class="res-preset-chip" data-val="10000">10 kΩ (Pull-up)</button>
+            <button type="button" class="res-preset-chip" data-val="100000">100 kΩ (مجزئ جهد)</button>
+          </div>
         </div>
 
       </div>

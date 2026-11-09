@@ -2256,6 +2256,289 @@ body {
 }
 
 /* ==========================================================================
+   DAEM RESISTOR COLOR CODE DECODER (الأدوات الهندسية)
+   ========================================================================== */
+.resistor-section {
+  position: relative;
+  padding: 5rem 1.5rem;
+  z-index: 2;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.resistor-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.resistor-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.resistor-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #eab308 30%, var(--neon-cyan) 70%, transparent);
+}
+
+[data-theme="light"] .resistor-card {
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.resistor-mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.res-mode-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-family: var(--font-arabic);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.res-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.res-mode-btn.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(139, 92, 246, 0.2));
+  border-color: var(--neon-cyan);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.resistor-visual-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  background: rgba(5, 8, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.resistor-wire {
+  width: 60px;
+  height: 6px;
+  background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 50%, #475569 100%);
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.resistor-body {
+  position: relative;
+  width: 260px;
+  height: 68px;
+  background: linear-gradient(180deg, #d8caaf 0%, #ecdcc2 40%, #c4b090 70%, #8c785b 100%);
+  border-radius: 26px / 34px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 3px 6px rgba(255, 255, 255, 0.6), inset 0 -4px 8px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 18px;
+}
+
+.resistor-band-slot {
+  width: 14px;
+  height: 100%;
+  border-radius: 2px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  box-shadow: inset 1px 0 2px rgba(255, 255, 255, 0.4), inset -1px 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.resistor-display-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: rgba(10, 15, 28, 0.8);
+  border: 1px solid var(--border-bright);
+  border-radius: 18px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 240, 255, 0.15);
+  flex-wrap: wrap;
+}
+
+.res-value-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.res-value-title {
+  font-family: var(--font-arabic);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.res-val-big {
+  font-family: var(--font-orbitron);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+  line-height: 1.1;
+  direction: ltr;
+  text-align: right;
+}
+
+.res-val-sub {
+  font-family: var(--font-tech);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  direction: ltr;
+}
+
+.res-specs-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spec-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-dim);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: var(--font-arabic);
+  font-size: 0.85rem;
+}
+
+.spec-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.spec-val {
+  color: #fff;
+  font-weight: 800;
+  font-family: var(--font-tech);
+}
+
+.res-copy-btn {
+  padding: 0.7rem 1.4rem;
+}
+
+.band-selectors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+}
+
+.band-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.band-col-title {
+  font-family: var(--font-arabic);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.band-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-dim);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-family: var(--font-arabic);
+  font-size: 0.88rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.band-select:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+
+.band-select option {
+  background: #0b1120;
+  color: #fff;
+  padding: 8px;
+}
+
+.res-presets-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-dim);
+}
+
+.presets-title {
+  font-family: var(--font-arabic);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.presets-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.res-preset-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-family: var(--font-tech);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.res-preset-chip:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--neon-cyan);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
    Universal Cross-Platform & All-Android Device Responsiveness Engine
    متوافق مع كل شاشات الهواتف (Android / iOS) والأجهزة اللوحية والحواسيب 100%
    ========================================================================== */
