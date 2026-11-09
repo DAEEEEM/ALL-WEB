@@ -17,33 +17,38 @@
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ================= الوضع الليلي (Dark Mode) ================= */
+/* ================= الوضع الليلي الفخم (Cyber Glassmorphism & Linear Luxury Dark) ================= */
 [data-theme="dark"] {
-  --bg-void: #020409;
-  --bg-deep: #050b18;
-  --bg-panel: rgba(8, 17, 34, 0.9);
-  --bg-card: rgba(10, 22, 44, 0.85);
-  --bg-card-hover: rgba(14, 32, 64, 0.98);
-  --bg-input: rgba(5, 12, 26, 0.95);
+  --bg-void: #06080d;
+  --bg-deep: #080c14;
+  --bg-panel: rgba(10, 15, 26, 0.72);
+  --bg-card: rgba(13, 19, 34, 0.65);
+  --bg-card-hover: rgba(18, 27, 48, 0.82);
+  --bg-input: rgba(8, 12, 22, 0.75);
 
-  --border-dim: rgba(0, 240, 255, 0.2);
-  --border-bright: rgba(0, 240, 255, 0.65);
+  --border-dim: rgba(255, 255, 255, 0.08);
+  --border-bright: rgba(0, 240, 255, 0.5);
+  --border-violet: rgba(139, 92, 246, 0.5);
 
-  --text-main: #f0f6fc;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
 
-  --glow-cyan: 0 0 25px rgba(0, 240, 255, 0.45), 0 0 50px rgba(0, 240, 255, 0.2);
-  --glow-sphere: 0 0 45px rgba(0, 240, 255, 0.7), 0 0 90px rgba(157, 0, 255, 0.45);
-  
-  --sphere-gradient: radial-gradient(circle at 35% 35%, #00f0ff, #0077ff, #9d00ff, #020409);
-  --ambient-1: rgba(0, 119, 255, 0.15);
-  --ambient-2: rgba(157, 0, 255, 0.12);
-  --grid-color: rgba(0, 240, 255, 0.035);
+  --neon-cyan: #00f0ff;
+  --neon-violet: #8b5cf6;
+  --neon-purple: #a855f7;
 
-  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  --btn-primary-bg: linear-gradient(135deg, var(--neon-cyan) 0%, #0099ff 100%);
-  --btn-primary-text: #000;
+  --glow-cyan: 0 0 30px rgba(0, 240, 255, 0.25), 0 0 60px rgba(139, 92, 246, 0.15);
+  --glow-sphere: 0 0 45px rgba(0, 240, 255, 0.6), 0 0 90px rgba(139, 92, 246, 0.4);
+  
+  --sphere-gradient: radial-gradient(circle at 35% 35%, #00f0ff, #3b82f6, #8b5cf6, #06080d);
+  --ambient-1: rgba(0, 240, 255, 0.08);
+  --ambient-2: rgba(139, 92, 246, 0.08);
+  --grid-color: rgba(255, 255, 255, 0.025);
+
+  --card-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --btn-primary-bg: linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%);
+  --btn-primary-text: #020409;
 }
 
 /* ================= الوضع النهاري المريح للعين (Eye-Friendly Light Mode - Astigmatism/Myopia Safe) ================= */
@@ -123,8 +128,9 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 40% at 20% 0%, var(--ambient-1) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, var(--ambient-2) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 50% at 15% 10%, var(--ambient-1) 0%, transparent 65%),
+    radial-gradient(ellipse 65% 50% at 85% 90%, var(--ambient-2) 0%, transparent 65%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.02) 0%, transparent 60%);
   pointer-events: none;
   z-index: 1;
 }
@@ -135,7 +141,7 @@ body {
   background-image:
     linear-gradient(var(--grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-  background-size: 48px 48px;
+  background-size: 40px 40px;
   pointer-events: none;
   z-index: 1;
 }
@@ -157,20 +163,36 @@ body {
 }
 
 /* ==========================================================================
-   Navbar
+   Navbar (Floating Glass Capsule - Linear & Vercel Style)
    ========================================================================== */
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
   z-index: 100;
   background: var(--bg-panel);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-dim);
-  padding: 0.85rem 0;
-  transition: background 0.3s ease, border-color 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-dim);
+  border-radius: 18px;
+  padding: 0.75rem 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    top: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
 }
 
 .nav-inner {
@@ -191,13 +213,13 @@ body {
 .brand-bolt-box {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(157, 0, 255, 0.2));
-  border: 1px solid var(--neon-cyan);
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(139, 92, 246, 0.18));
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 12px;
   display: grid;
   place-items: center;
   position: relative;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="light"] .brand-bolt-box {
@@ -465,11 +487,13 @@ body {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-main);
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-dim);
-  padding: 0.35rem 1.1rem;
+  padding: 0.4rem 1.25rem;
   border-radius: 999px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] .cyber-badge {
@@ -482,7 +506,8 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--neon-yellow);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
 }
 
 [data-theme="light"] .badge-dot {
@@ -986,25 +1011,28 @@ body {
   color: var(--neon-cyan);
 }
 
-/* App Card */
+/* App Card (Frosted Glass & Linear Tech Style) */
 .app-card {
   background: var(--bg-card);
   border: 1px solid var(--border-dim);
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
-  transition: all 0.3s var(--ease-smooth);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--card-shadow);
 }
 
 .app-card:hover {
-  border-color: var(--border-bright);
+  border-color: rgba(0, 240, 255, 0.45);
   background: var(--bg-card-hover);
   transform: translateY(-4px);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 240, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .card-top {
@@ -1398,15 +1426,16 @@ body {
 .downloader-card {
   background: var(--bg-card);
   border: 1px solid var(--border-dim);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 2.5rem 2rem;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .downloader-card::before {
@@ -1416,7 +1445,7 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #10b981, var(--neon-cyan), transparent);
+  background: linear-gradient(90deg, transparent, var(--neon-cyan) 30%, var(--neon-violet) 70%, transparent);
 }
 
 [data-theme="light"] .downloader-card {
@@ -1429,10 +1458,10 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid rgba(0, 240, 255, 0.2);
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-family: var(--font-arabic);
   font-size: 0.85rem;
   font-weight: 700;
@@ -1446,13 +1475,14 @@ body {
 
 .device-status-badge {
   margin-right: auto;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   color: #10b981;
   font-family: var(--font-orbitron);
   font-size: 0.72rem;
   font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
 }
 
 /* حقل إدخال الرابط */
@@ -1466,18 +1496,18 @@ body {
 .input-glow-frame {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: var(--bg-input);
-  border: 2px solid var(--border-dim);
-  border-radius: 14px;
-  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--border-dim);
+  border-radius: 16px;
+  padding: 0.85rem 1.4rem;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .input-glow-frame:focus-within {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+  border-color: rgba(0, 240, 255, 0.6);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25), 0 0 50px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .input-platform-icon {
@@ -1570,22 +1600,29 @@ body {
 }
 
 .platform-chip {
-  background: var(--bg-input);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-dim);
   color: var(--text-muted);
   font-family: var(--font-arabic);
   font-size: 0.8rem;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
   transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.platform-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .platform-chip.active-highlight {
   border-color: var(--neon-cyan);
   color: #fff;
-  background: rgba(0, 240, 255, 0.2);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(139, 92, 246, 0.25));
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -1929,15 +1966,17 @@ body {
 .speedtest-dashboard {
   background: var(--bg-card);
   border: 1px solid var(--border-dim);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 2.5rem 2rem;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2.5rem;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .speedtest-dashboard::before {
@@ -1947,7 +1986,7 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #0284c7, #00f0ff, transparent);
+  background: linear-gradient(90deg, transparent, var(--neon-cyan) 30%, var(--neon-violet) 70%, transparent);
 }
 
 [data-theme="light"] .speedtest-dashboard {
@@ -2515,9 +2554,9 @@ a,
   top: 0;
   width: 4px;
   height: 44px;
-  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(180deg, #00f0ff, #8b5cf6);
   border-radius: 4px;
-  box-shadow: 0 0 12px rgba(37, 99, 235, 0.85);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.75), 0 0 30px rgba(139, 92, 246, 0.45);
   pointer-events: none;
 }
 
@@ -2559,12 +2598,14 @@ a,
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: rgba(8, 17, 34, 0.85);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 14px;
-  padding: 0.9rem 1.4rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 18px;
+  padding: 1rem 1.6rem;
   margin-bottom: 2.5rem;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--card-shadow);
   flex-wrap: wrap;
 }
 
@@ -2648,12 +2689,14 @@ a,
 }
 
 .comment-form-box {
-  background: rgba(8, 17, 34, 0.9);
-  border: 1px solid rgba(0, 240, 255, 0.15);
-  border-radius: 14px;
-  padding: 1.2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 18px;
+  padding: 1.5rem;
   margin-bottom: 1.8rem;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--card-shadow);
 }
 
 .comment-form-row {
