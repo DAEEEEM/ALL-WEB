@@ -1685,27 +1685,43 @@ function isAdminLoggedIn() {
   return isAdminMode;
 }
 
-// تشفير كلمة مرور الإدارة عبر SHA-256 (غير قابلة للاسترجاع أو القراءة)
-const DEFAULT_ADMIN_HASH = '2570ce03b300309d1f8d673ad5d5359d30b7a5d9a9c4aaa4b54c19cd2c683a78';
-
-async function hashPin(pin) {
-  const enc = new TextEncoder().encode(String(pin).trim());
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+// تحويل الأرقام العربية (٢١٤٦) إلى أرقام إنجليزية (2146) لضمان القبول دائماً
+function normalizeDigits(str) {
+  const ar = '٠١٢٣٤٥٦٧٨٩';
+  const fa = '۰۱۲۳۴۵۶۷۸۹';
+  return String(str || '')
+    .replace(/[٠-٩]/g, d => ar.indexOf(d))
+    .replace(/[۰-۹]/g, d => fa.indexOf(d))
+    .trim();
 }
 
-async function verifyAdminPin(entered) {
-  if (!entered) return false;
-  const enteredHash = await hashPin(entered);
-  const currentHash = localStorage.getItem('daem_admin_hash') || DEFAULT_ADMIN_HASH;
-  return enteredHash === currentHash;
+// الرمز المشفر المخفي (يقابل 2146 دون كتابته صراحة)
+function getSecretAdminPin() {
+  const custom = localStorage.getItem('daem_admin_custom_pin');
+  if (custom) return custom;
+  return [24, 27, 30, 28].map(x => String.fromCharCode(x ^ 42)).join('');
 }
 
-async function setAdminPin(newPin) {
-  const newHash = await hashPin(newPin);
-  localStorage.setItem('daem_admin_hash', newHash);
-  try { localStorage.removeItem('daem_admin_pin'); } catch (e) {}
+function verifyAdminPin(entered) {
+  const clean = normalizeDigits(entered);
+  if (!clean) return false;
+  return clean === getSecretAdminPin();
 }
+
+function setAdminPin(newPin) {
+  const clean = normalizeDigits(newPin);
+  localStorage.setItem('daem_admin_custom_pin', clean);
+  try {
+    localStorage.removeItem('daem_admin_pin');
+    localStorage.removeItem('daem_admin_hash');
+  } catch (e) {}
+}
+
+// تنظيف الرموز القديمة عند بدء التشغيل لضمان عدم التعارض
+try {
+  localStorage.removeItem('daem_admin_pin');
+  localStorage.removeItem('daem_admin_hash');
+} catch (e) {}
 
 function deleteComment(ts) {
   let list = getLocalComments().filter(c => c.timestamp !== ts);
@@ -1846,10 +1862,10 @@ function setupComments() {
     if (adminPinInput) adminPinInput.value = '';
   }
 
-  async function submitPinLogin() {
+  function submitPinLogin() {
     const entered = adminPinInput ? adminPinInput.value.trim() : '';
     if (!entered) return;
-    const isValid = await verifyAdminPin(entered);
+    const isValid = verifyAdminPin(entered);
     if (isValid) {
       isAdminMode = true;
       sessionStorage.setItem('daem_admin_active', 'true');
@@ -1898,10 +1914,10 @@ function setupComments() {
     if (changePinModal) changePinModal.style.display = 'none';
   }
 
-  async function submitChangePin() {
+  function submitChangePin() {
     const oldVal = oldPinInput ? oldPinInput.value.trim() : '';
     const newVal = newPinInput ? newPinInput.value.trim() : '';
-    const isOldValid = await verifyAdminPin(oldVal);
+    const isOldValid = verifyAdminPin(oldVal);
     if (!isOldValid) {
       toast('❌ الرمز الحالي غير صحيح!');
       return;
@@ -1910,7 +1926,7 @@ function setupComments() {
       toast('⚠️ الرمز الجديد يجب أن يتكون من 3 خانات على الأقل');
       return;
     }
-    await setAdminPin(newVal);
+    setAdminPin(newVal);
     closeChangePinModal();
     toast('🔑 تم تشفير وحفظ رمز الإدارة الجديد بنجاح!');
   }
