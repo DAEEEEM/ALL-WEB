@@ -45,13 +45,6 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "DAEM Digital Platform - Desktop View"
-    },
-    {
-      "src": "preview.jpg",
-      "sizes": "400x800",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "DAEM Digital Platform - Mobile View"
     }
   ],
   "shortcuts": [
