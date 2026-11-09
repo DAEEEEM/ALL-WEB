@@ -482,7 +482,25 @@
           <div class="hud-badge-line">
             <span class="hud-badge-text">COMMUNITY // آراء الزوار</span>
           </div>
-          <h2 class="section-heading"><span class="neon-title">💬 التعليقات</span></h2>
+          <div class="comments-head-row">
+            <h2 class="section-heading"><span class="neon-title">💬 التعليقات</span></h2>
+            <button id="adminLoginBtn" class="cyber-btn cyber-btn-ghost admin-mode-btn" title="لوحة تحكم صاحب المنصة وحذف التعليقات">
+              <span>🔐 لوحة الإدارة</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- شريط تحكم المدير (يظهر فقط بعد إدخال الرمز السري) -->
+        <div id="adminControlsBar" class="admin-controls-bar" style="display: none;">
+          <div class="admin-info-badge">
+            <span class="admin-crown">👑</span>
+            <span>وضع الإدارة مفعّل (أنت المتحكم الآن)</span>
+          </div>
+          <div class="admin-actions-btns">
+            <button id="adminChangePinBtn" class="admin-action-subbtn">🔑 تغيير الرمز</button>
+            <button id="adminClearAllBtn" class="admin-action-subbtn danger">🗑️ مسح الكل</button>
+            <button id="adminLogoutBtn" class="admin-action-subbtn">🚪 خروج</button>
+          </div>
         </div>
 
         <!-- نموذج إضافة تعليق -->

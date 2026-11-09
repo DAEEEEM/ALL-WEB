@@ -2799,3 +2799,102 @@ a,
   color: #0284c7;
   text-shadow: none;
 }
+
+
+/* ==========================================================================
+   Admin Mode Controls for Comments
+   ========================================================================== */
+.comments-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-mode-btn {
+  padding: 0.4rem 0.9rem !important;
+  font-size: 0.8rem !important;
+  border-color: rgba(234, 179, 8, 0.4) !important;
+  color: #fbbf24 !important;
+}
+
+.admin-mode-btn:hover {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border-color: #fbbf24 !important;
+}
+
+.admin-controls-bar {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 12px;
+  padding: 0.75rem 1.2rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: fadeInComment 0.3s ease;
+}
+
+.admin-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.admin-actions-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-action-subbtn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  color: #e2e8f0;
+  font-family: var(--font-arabic);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-action-subbtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.admin-action-subbtn.danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.admin-action-subbtn.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+.btn-del-comment {
+  margin-right: auto;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  color: #f87171;
+  font-family: var(--font-arabic);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-del-comment:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: scale(1.05);
+}

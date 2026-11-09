@@ -1679,6 +1679,31 @@ function formatRelativeTime(ts) {
   return `منذ ${days} يوم`;
 }
 
+let isAdminMode = sessionStorage.getItem('daem_admin_active') === 'true';
+
+function isAdminLoggedIn() {
+  return isAdminMode;
+}
+
+function getAdminPin() {
+  return localStorage.getItem('daem_admin_pin') || '1234';
+}
+
+function deleteComment(ts) {
+  let list = getLocalComments().filter(c => c.timestamp !== ts);
+  localStorage.setItem(COMMENTS_KEY, JSON.stringify(list));
+  loadComments();
+  toast('🗑️ تم حذف التعليق بنجاح');
+}
+
+function clearAllComments() {
+  if (confirm('تحذير: هل أنت متأكد من مسح جميع التعليقات نهائياً؟')) {
+    localStorage.setItem(COMMENTS_KEY, JSON.stringify([]));
+    loadComments();
+    toast('🗑️ تم مسح جميع التعليقات');
+  }
+}
+
 function renderComments(comments) {
   const list = document.getElementById('commentsList');
   if (!list) return;
@@ -1688,20 +1713,37 @@ function renderComments(comments) {
     return;
   }
 
+  const isAdmin = isAdminLoggedIn();
+
   list.innerHTML = comments.map(c => {
     const initials = c.name ? c.name.trim().charAt(0).toUpperCase() : '؟';
     const displayName = c.name?.trim() || 'زائر';
     const time = formatRelativeTime(c.timestamp);
+    const delBtnHtml = isAdmin
+      ? `<button class="btn-del-comment" data-ts="${c.timestamp}" title="حذف هذا التعليق">🗑️ حذف</button>`
+      : '';
     return `
-      <div class="comment-card">
+      <div class="comment-card" id="comment-${c.timestamp}">
         <div class="comment-header">
           <div class="comment-avatar">${initials}</div>
           <span class="comment-name">${esc(displayName)}</span>
           <span class="comment-time">${esc(time)}</span>
+          ${delBtnHtml}
         </div>
         <div class="comment-body">${esc(c.text)}</div>
       </div>`;
   }).join('');
+
+  if (isAdmin) {
+    list.querySelectorAll('.btn-del-comment').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const ts = parseInt(e.currentTarget.dataset.ts);
+        if (confirm('هل أنت متأكد من حذف هذا التعليق نهائياً؟')) {
+          deleteComment(ts);
+        }
+      });
+    });
+  }
 }
 
 async function loadComments() {
@@ -1750,6 +1792,74 @@ function setupComments() {
   const textInput   = document.getElementById('commentText');
   const submitBtn   = document.getElementById('submitComment');
   const emojiPicks  = document.querySelectorAll('.emoji-pick');
+
+  // أزرار لوحة الإدارة
+  const adminLoginBtn     = document.getElementById('adminLoginBtn');
+  const adminBar          = document.getElementById('adminControlsBar');
+  const adminLogoutBtn    = document.getElementById('adminLogoutBtn');
+  const adminClearAllBtn  = document.getElementById('adminClearAllBtn');
+  const adminChangePinBtn = document.getElementById('adminChangePinBtn');
+
+  function updateAdminUI() {
+    const active = isAdminLoggedIn();
+    if (adminBar) adminBar.style.display = active ? 'flex' : 'none';
+    if (adminLoginBtn) {
+      adminLoginBtn.innerHTML = active ? '<span>👑 الإدارة مفعلة</span>' : '<span>🔐 لوحة الإدارة</span>';
+    }
+  }
+
+  if (adminLoginBtn) {
+    adminLoginBtn.addEventListener('click', () => {
+      if (isAdminLoggedIn()) {
+        toast('👑 أنت في وضع الإدارة بالفعل، أزرار الحذف ظاهرة بجانب كل تعليق!');
+        return;
+      }
+      const entered = prompt('🔐 أدخل رمز الإدارة السري (الافتراضي: 1234):');
+      if (entered === null) return;
+      if (entered.trim() === getAdminPin()) {
+        isAdminMode = true;
+        sessionStorage.setItem('daem_admin_active', 'true');
+        updateAdminUI();
+        loadComments();
+        toast('👑 أهلاً بك يا مدير! تم تفعيل صلاحيات حذف والتحكم بالتعليقات ⚡');
+      } else {
+        alert('❌ رمز الإدارة غير صحيح!');
+      }
+    });
+  }
+
+  if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener('click', () => {
+      isAdminMode = false;
+      sessionStorage.removeItem('daem_admin_active');
+      updateAdminUI();
+      loadComments();
+      toast('تم الخروج من وضع الإدارة');
+    });
+  }
+
+  if (adminClearAllBtn) {
+    adminClearAllBtn.addEventListener('click', clearAllComments);
+  }
+
+  if (adminChangePinBtn) {
+    adminChangePinBtn.addEventListener('click', () => {
+      const current = prompt('أدخل الرمز الحالي للتأكيد:');
+      if (current === getAdminPin()) {
+        const newPin = prompt('أدخل الرمز السري الجديد:');
+        if (newPin && newPin.trim().length >= 3) {
+          localStorage.setItem('daem_admin_pin', newPin.trim());
+          toast('🔑 تم تغيير رمز الإدارة بنجاح!');
+        } else {
+          toast('⚠️ الرمز يجب أن يتكون من 3 خانات على الأقل');
+        }
+      } else {
+        alert('❌ الرمز الحالي غير صحيح!');
+      }
+    });
+  }
+
+  updateAdminUI();
 
   // تحميل التعليقات الحالية
   if (document.readyState === 'loading') {
