@@ -2898,3 +2898,125 @@ a,
   color: #fff;
   transform: scale(1.05);
 }
+
+
+/* ==========================================================================
+   Admin PIN Dialog Modal (No Autocomplete / No Suggestions)
+   ========================================================================== */
+.admin-pin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.admin-pin-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 4, 9, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.admin-pin-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 380px;
+  background: rgba(8, 17, 34, 0.98);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: 16px;
+  padding: 1.6rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(234, 179, 8, 0.2);
+  animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  direction: rtl;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.admin-pin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.admin-pin-icon { font-size: 1.4rem; }
+
+.admin-pin-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin: 0;
+}
+
+.admin-pin-close {
+  margin-right: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.admin-pin-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-pin-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+.admin-pin-input-box {
+  margin-bottom: 1.2rem;
+}
+
+.admin-pin-field {
+  width: 100%;
+  background: rgba(5, 12, 26, 0.95);
+  border: 1.5px solid rgba(234, 179, 8, 0.35);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  color: #fbbf24;
+  font-family: var(--font-orbitron), monospace;
+  font-size: 1.3rem;
+  letter-spacing: 5px;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-pin-field:focus {
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.35);
+}
+
+.admin-pin-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.admin-pin-btn {
+  flex: 1;
+  padding: 0.65rem 1rem !important;
+  font-size: 0.9rem !important;
+  justify-content: center;
+}
+
+.admin-pin-btn.primary {
+  background: linear-gradient(135deg, #fbbf24, #d97706) !important;
+  color: #000 !important;
+  font-weight: 800;
+}

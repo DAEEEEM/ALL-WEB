@@ -1808,23 +1808,105 @@ function setupComments() {
     }
   }
 
+  // عناصر نافذة تسجيل دخول الإدارة
+  const adminPinModal     = document.getElementById('adminPinModal');
+  const adminPinInput     = document.getElementById('adminPinInput');
+  const adminPinSubmitBtn = document.getElementById('adminPinSubmitBtn');
+  const adminPinCancelBtn = document.getElementById('adminPinCancelBtn');
+  const adminPinCloseBtn  = document.getElementById('adminPinCloseBtn');
+  const adminPinBackdrop  = document.getElementById('adminPinBackdrop');
+
+  function openPinModal() {
+    if (!adminPinModal || !adminPinInput) return;
+    adminPinInput.value = '';
+    adminPinModal.style.display = 'flex';
+    setTimeout(() => adminPinInput.focus(), 80);
+  }
+
+  function closePinModal() {
+    if (adminPinModal) adminPinModal.style.display = 'none';
+    if (adminPinInput) adminPinInput.value = '';
+  }
+
+  function submitPinLogin() {
+    const entered = adminPinInput ? adminPinInput.value.trim() : '';
+    if (!entered) return;
+    if (entered === getAdminPin()) {
+      isAdminMode = true;
+      sessionStorage.setItem('daem_admin_active', 'true');
+      closePinModal();
+      updateAdminUI();
+      loadComments();
+      toast('👑 أهلاً بك يا مدير! تم تفعيل صلاحيات حذف والتحكم بالتعليقات ⚡');
+    } else {
+      toast('❌ رمز الإدارة غير صحيح!');
+      if (adminPinInput) {
+        adminPinInput.value = '';
+        adminPinInput.focus();
+      }
+    }
+  }
+
+  if (adminPinSubmitBtn) adminPinSubmitBtn.addEventListener('click', submitPinLogin);
+  if (adminPinCancelBtn) adminPinCancelBtn.addEventListener('click', closePinModal);
+  if (adminPinCloseBtn)  adminPinCloseBtn.addEventListener('click', closePinModal);
+  if (adminPinBackdrop)  adminPinBackdrop.addEventListener('click', closePinModal);
+  if (adminPinInput) {
+    adminPinInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitPinLogin();
+      if (e.key === 'Escape') closePinModal();
+    });
+  }
+
+  // عناصر نافذة تغيير الرمز السري
+  const changePinModal      = document.getElementById('adminChangePinModal');
+  const oldPinInput         = document.getElementById('adminOldPinInput');
+  const newPinInput         = document.getElementById('adminNewPinInput');
+  const saveNewPinBtn       = document.getElementById('adminSaveNewPinBtn');
+  const cancelNewPinBtn     = document.getElementById('adminCancelNewPinBtn');
+  const closeChangePinBtn   = document.getElementById('adminChangePinCloseBtn');
+  const changePinBackdrop   = document.getElementById('adminChangePinBackdrop');
+
+  function openChangePinModal() {
+    if (!changePinModal) return;
+    if (oldPinInput) oldPinInput.value = '';
+    if (newPinInput) newPinInput.value = '';
+    changePinModal.style.display = 'flex';
+    setTimeout(() => oldPinInput?.focus(), 80);
+  }
+
+  function closeChangePinModal() {
+    if (changePinModal) changePinModal.style.display = 'none';
+  }
+
+  function submitChangePin() {
+    const oldVal = oldPinInput ? oldPinInput.value.trim() : '';
+    const newVal = newPinInput ? newPinInput.value.trim() : '';
+    if (oldVal !== getAdminPin()) {
+      toast('❌ الرمز الحالي غير صحيح!');
+      return;
+    }
+    if (!newVal || newVal.length < 3) {
+      toast('⚠️ الرمز الجديد يجب أن يتكون من 3 خانات على الأقل');
+      return;
+    }
+    localStorage.setItem('daem_admin_pin', newVal);
+    closeChangePinModal();
+    toast('🔑 تم تغيير رمز الإدارة بنجاح!');
+  }
+
+  if (saveNewPinBtn)     saveNewPinBtn.addEventListener('click', submitChangePin);
+  if (cancelNewPinBtn)   cancelNewPinBtn.addEventListener('click', closeChangePinModal);
+  if (closeChangePinBtn) closeChangePinBtn.addEventListener('click', closeChangePinModal);
+  if (changePinBackdrop) changePinBackdrop.addEventListener('click', closeChangePinModal);
+
   if (adminLoginBtn) {
     adminLoginBtn.addEventListener('click', () => {
       if (isAdminLoggedIn()) {
         toast('👑 أنت في وضع الإدارة بالفعل، أزرار الحذف ظاهرة بجانب كل تعليق!');
         return;
       }
-      const entered = prompt('🔐 أدخل رمز الإدارة السري (الافتراضي: 1234):');
-      if (entered === null) return;
-      if (entered.trim() === getAdminPin()) {
-        isAdminMode = true;
-        sessionStorage.setItem('daem_admin_active', 'true');
-        updateAdminUI();
-        loadComments();
-        toast('👑 أهلاً بك يا مدير! تم تفعيل صلاحيات حذف والتحكم بالتعليقات ⚡');
-      } else {
-        alert('❌ رمز الإدارة غير صحيح!');
-      }
+      openPinModal();
     });
   }
 
@@ -1843,20 +1925,7 @@ function setupComments() {
   }
 
   if (adminChangePinBtn) {
-    adminChangePinBtn.addEventListener('click', () => {
-      const current = prompt('أدخل الرمز الحالي للتأكيد:');
-      if (current === getAdminPin()) {
-        const newPin = prompt('أدخل الرمز السري الجديد:');
-        if (newPin && newPin.trim().length >= 3) {
-          localStorage.setItem('daem_admin_pin', newPin.trim());
-          toast('🔑 تم تغيير رمز الإدارة بنجاح!');
-        } else {
-          toast('⚠️ الرمز يجب أن يتكون من 3 خانات على الأقل');
-        }
-      } else {
-        alert('❌ الرمز الحالي غير صحيح!');
-      }
-    });
+    adminChangePinBtn.addEventListener('click', openChangePinModal);
   }
 
   updateAdminUI();

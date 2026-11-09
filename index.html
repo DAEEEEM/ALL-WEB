@@ -549,6 +549,57 @@
     <span id="toastMsg" class="toast-msg"></span>
   </div>
 
+  <!-- نافذة تسجيل دخول الإدارة (مشفرة ومحمية من الاقتراحات التلقائية) -->
+  <div id="adminPinModal" class="admin-pin-modal" style="display: none;">
+    <div class="admin-pin-backdrop" id="adminPinBackdrop"></div>
+    <div class="admin-pin-card">
+      <div class="admin-pin-header">
+        <span class="admin-pin-icon">🔐</span>
+        <h3 class="admin-pin-title">لوحة تحكم الإدارة</h3>
+        <button type="button" class="admin-pin-close" id="adminPinCloseBtn">✕</button>
+      </div>
+      <p class="admin-pin-desc">أدخل رمز الدخول السري للتحكم بالتعليقات وإدارتها</p>
+      <div class="admin-pin-input-box">
+        <input type="password" id="adminPinInput" class="admin-pin-field" placeholder="••••" maxlength="20" autocomplete="new-password" spellcheck="false" inputmode="numeric">
+      </div>
+      <div class="admin-pin-actions">
+        <button type="button" id="adminPinSubmitBtn" class="cyber-btn cyber-btn-glow admin-pin-btn primary">
+          <span>دخول</span>
+        </button>
+        <button type="button" id="adminPinCancelBtn" class="cyber-btn cyber-btn-ghost admin-pin-btn">
+          <span>إلغاء</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تغيير رمز الإدارة -->
+  <div id="adminChangePinModal" class="admin-pin-modal" style="display: none;">
+    <div class="admin-pin-backdrop" id="adminChangePinBackdrop"></div>
+    <div class="admin-pin-card">
+      <div class="admin-pin-header">
+        <span class="admin-pin-icon">🔑</span>
+        <h3 class="admin-pin-title">تغيير رمز الإدارة</h3>
+        <button type="button" class="admin-pin-close" id="adminChangePinCloseBtn">✕</button>
+      </div>
+      <p class="admin-pin-desc">أدخل الرمز الحالي ثم اكتب رمزك الجديد</p>
+      <div class="admin-pin-input-box" style="margin-bottom: 0.8rem;">
+        <input type="password" id="adminOldPinInput" class="admin-pin-field" placeholder="الرمز الحالي" maxlength="20" autocomplete="new-password" spellcheck="false" inputmode="numeric">
+      </div>
+      <div class="admin-pin-input-box">
+        <input type="password" id="adminNewPinInput" class="admin-pin-field" placeholder="الرمز الجديد" maxlength="20" autocomplete="new-password" spellcheck="false" inputmode="numeric">
+      </div>
+      <div class="admin-pin-actions">
+        <button type="button" id="adminSaveNewPinBtn" class="cyber-btn cyber-btn-glow admin-pin-btn primary">
+          <span>حفظ التغيير</span>
+        </button>
+        <button type="button" id="adminCancelNewPinBtn" class="cyber-btn cyber-btn-ghost admin-pin-btn">
+          <span>إلغاء</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
