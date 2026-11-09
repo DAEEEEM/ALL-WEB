@@ -544,7 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ==========================================================================
-// 7. DAEM Cyber Speedtest Engine (محرك قياس سرعة الإنترنت المتقدم)
+// 7. DAEM Cyber Speedtest Engine (محرك قياس سرعة الإنترنت المتقدم والدقيق)
+// مبني على محرك Cloudflare Speed Engine المعتمد لقياس الباندويث الحقيقي
 // ==========================================================================
 function setupCyberSpeedTest() {
   const startBtn         = document.getElementById('startSpeedTestBtn');
@@ -578,8 +579,12 @@ function setupCyberSpeedTest() {
 
   const GAUGE_CIRCUMFERENCE = 597; // 2 * PI * 95
 
-  function setGauge(mbps, maxScale = 100) {
-    const ratio = Math.min(1, Math.max(0, mbps / maxScale));
+  let currentScale = 100;
+  function setGauge(mbps) {
+    if (mbps > currentScale) {
+      currentScale = mbps > 500 ? 1000 : (mbps > 200 ? 500 : 200);
+    }
+    const ratio = Math.min(1, Math.max(0, mbps / currentScale));
     const offset = GAUGE_CIRCUMFERENCE - (ratio * GAUGE_CIRCUMFERENCE);
     if (gaugeProgress) gaugeProgress.style.strokeDashoffset = offset;
     if (speedValEl) speedValEl.textContent = mbps.toFixed(1);
@@ -596,10 +601,11 @@ function setupCyberSpeedTest() {
     if (evalBox) evalBox.style.display = 'none';
 
     // إعادة الضبط
+    currentScale = 100;
     setGauge(0);
     setProgress(5);
     phaseBadge.textContent = 'جاري الاتصال...';
-    phaseDesc.textContent = 'جاري فحص استقرار الشبكة وزمن الاستجابة...';
+    phaseDesc.textContent = 'جاري الاتصال بأقرب خادم فحص معتمد...';
 
     [cardPing, cardJitter, cardDownload, cardUpload].forEach(c => c.classList.remove('testing-active'));
     telPingVal.textContent = '--';
@@ -612,165 +618,203 @@ function setupCyberSpeedTest() {
     telDownloadStatus.textContent = 'في الانتظار';
     telUploadStatus.textContent = 'في الانتظار';
 
-    // ----------------------------------------------------
-    // المرحلة 1: قياس Ping و Jitter
-    // ----------------------------------------------------
-    cardPing.classList.add('testing-active');
-    cardJitter.classList.add('testing-active');
-    phaseBadge.textContent = 'فحص الاستجابة (Ping)...';
+    try {
+      // ----------------------------------------------------
+      // المرحلة 1: قياس Ping و Jitter بدقة عالية من أقرب خادم CDN
+      // ----------------------------------------------------
+      cardPing.classList.add('testing-active');
+      cardJitter.classList.add('testing-active');
+      phaseBadge.textContent = 'فحص زمن الاستجابة (Ping)...';
+      phaseDesc.textContent = 'قياس زمن الرد وسرعة ارتداد الحزم بدقة...';
 
-    const pings = [];
-    const testEndpoints = [
-      'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-      'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-      'https://unpkg.com/react@18/umd/react.production.min.js'
-    ];
+      const pings = [];
+      const pingUrl = 'https://speed.cloudflare.com/__down?bytes=0';
 
-    for (let i = 0; i < 5; i++) {
-      const endpoint = testEndpoints[i % testEndpoints.length] + '?t=' + Date.now() + Math.random();
-      const t0 = performance.now();
-      try {
-        await fetch(endpoint, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
-        const latency = Math.round(performance.now() - t0);
-        pings.push(latency);
-        telPingVal.textContent = latency;
-        setProgress(5 + (i + 1) * 4);
-      } catch (e) {
-        pings.push(22 + Math.floor(Math.random() * 15));
+      for (let i = 0; i < 8; i++) {
+        const t0 = performance.now();
+        try {
+          const resp = await fetch(`${pingUrl}&t=${Date.now()}_${i}`, { cache: 'no-store' });
+          if (!resp.ok) throw new Error();
+          const latency = Math.round(performance.now() - t0);
+          pings.push(latency);
+          telPingVal.textContent = latency;
+        } catch (err) {
+          const tAlt0 = performance.now();
+          await fetch(`https://1.1.1.1/cdn-cgi/trace?t=${Date.now()}_${i}`, { mode: 'no-cors', cache: 'no-store' });
+          const altLatency = Math.round(performance.now() - tAlt0);
+          pings.push(altLatency);
+          telPingVal.textContent = altLatency;
+        }
+        setProgress(5 + (i + 1) * 2.5);
+        await new Promise(r => setTimeout(r, 60));
       }
-      await new Promise(r => setTimeout(r, 60));
-    }
 
-    const minPing = Math.min(...pings);
-    let jitterSum = 0;
-    for (let i = 1; i < pings.length; i++) {
-      jitterSum += Math.abs(pings[i] - pings[i - 1]);
-    }
-    const avgJitter = Math.max(1, Math.round(jitterSum / (pings.length - 1)));
-
-    telPingVal.textContent = minPing;
-    telJitterVal.textContent = avgJitter;
-    telPingStatus.textContent = minPing < 30 ? 'ممتاز ⚡' : (minPing < 70 ? 'جيد جداً' : 'متوسط');
-    telJitterStatus.textContent = avgJitter <= 3 ? 'مستقر جداً' : 'مقبول';
-
-    cardPing.classList.remove('testing-active');
-    cardJitter.classList.remove('testing-active');
-    setProgress(25);
-
-    // ----------------------------------------------------
-    // المرحلة 2: قياس سرعة التحميل (Download Speed)
-    // ----------------------------------------------------
-    cardDownload.classList.add('testing-active');
-    phaseBadge.textContent = 'فحص التحميل (Download)...';
-    phaseDesc.textContent = 'جاري قياس أقصى سعة تدفق للبيانات...';
-    telDownloadStatus.textContent = 'جاري القياس...';
-
-    const dlFiles = [
-      'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
-      'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
-    ];
-
-    let totalBytes = 0;
-    const dlStart = performance.now();
-    let currentMbps = 0;
-
-    for (let i = 0; i < 4; i++) {
-      const url = dlFiles[i % dlFiles.length] + '?cacheBust=' + Date.now() + Math.random();
-      const tChunkStart = performance.now();
-      try {
-        const resp = await fetch(url, { cache: 'no-store' });
-        const blob = await resp.blob();
-        totalBytes += blob.size;
-
-        const elapsed = (performance.now() - dlStart) / 1000;
-        currentMbps = (totalBytes * 8) / (elapsed * 1000000);
-        setGauge(currentMbps, 120);
-        setProgress(25 + (i + 1) * 10);
-      } catch (e) {
-        // بديل قياس حسابي
-        totalBytes += 1500000;
-        currentMbps = 45 + Math.random() * 30;
-        setGauge(currentMbps, 120);
+      const minPing = Math.min(...pings);
+      let jitterSum = 0;
+      for (let i = 1; i < pings.length; i++) {
+        jitterSum += Math.abs(pings[i] - pings[i - 1]);
       }
-    }
+      const avgJitter = Math.max(1, Math.round(jitterSum / (pings.length - 1)));
 
-    const finalDlMbps = Math.max(8.5, currentMbps);
-    telDownloadVal.textContent = finalDlMbps.toFixed(1);
-    telDownloadStatus.textContent = finalDlMbps > 50 ? 'فائق السرعة 🚀' : (finalDlMbps > 20 ? 'سريع' : 'عادي');
-    cardDownload.classList.remove('testing-active');
-    setProgress(70);
+      telPingVal.textContent = minPing;
+      telJitterVal.textContent = avgJitter;
+      telPingStatus.textContent = minPing < 35 ? 'ممتاز ⚡' : (minPing < 75 ? 'جيد جداً' : (minPing < 130 ? 'متوسط' : 'مرتفع'));
+      telJitterStatus.textContent = avgJitter <= 4 ? 'مستقر جداً' : (avgJitter <= 12 ? 'مقبول' : 'متقلب');
 
-    // ----------------------------------------------------
-    // المرحلة 3: قياس سرعة الرفع (Upload Speed)
-    // ----------------------------------------------------
-    cardUpload.classList.add('testing-active');
-    phaseBadge.textContent = 'فحص الرفع (Upload)...';
-    phaseDesc.textContent = 'جاري قياس سرعة إرسال ورفع البيانات...';
-    telUploadStatus.textContent = 'جاري القياس...';
+      cardPing.classList.remove('testing-active');
+      cardJitter.classList.remove('testing-active');
+      setProgress(25);
 
-    // محاكاة إرسال حزم بايتات
-    const uploadChunk = new Uint8Array(256 * 1024);
-    let upBytes = 0;
-    const upStart = performance.now();
-    let currentUpMbps = 0;
+      // ----------------------------------------------------
+      // المرحلة 2: قياس سرعة التحميل الحقيقية (Real Bandwidth Stream)
+      // ----------------------------------------------------
+      cardDownload.classList.add('testing-active');
+      phaseBadge.textContent = 'فحص التحميل (Download)...';
+      phaseDesc.textContent = 'سحب دفق بيانات فعلي لحساب السرعة الحقيقية...';
+      telDownloadStatus.textContent = 'جاري السحب...';
 
-    for (let i = 0; i < 3; i++) {
-      const t0 = performance.now();
-      try {
-        await fetch('https://httpbin.org/post', {
-          method: 'POST',
-          body: uploadChunk,
-          mode: 'no-cors',
-          cache: 'no-store'
-        });
-        upBytes += uploadChunk.length;
-        const elapsed = (performance.now() - upStart) / 1000;
-        currentUpMbps = (upBytes * 8) / (elapsed * 1000000);
-        setGauge(currentUpMbps, 60);
-      } catch (e) {
-        currentUpMbps = finalDlMbps * (0.35 + Math.random() * 0.15);
-        setGauge(currentUpMbps, 60);
+      const downloadSizes = [1000000, 5000000, 10000000, 15000000];
+      let lastMeasuredDlMbps = 0;
+
+      for (let i = 0; i < downloadSizes.length; i++) {
+        const size = downloadSizes[i];
+        const streamUrl = `https://speed.cloudflare.com/__down?bytes=${size}&t=${Date.now()}`;
+        
+        try {
+          const resp = await fetch(streamUrl, { cache: 'no-store' });
+          if (!resp.ok) throw new Error('Download stream error');
+
+          const reader = resp.body.getReader();
+          let chunkBytes = 0;
+          const chunkStartTime = performance.now();
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const len = value.length;
+            chunkBytes += len;
+
+            const now = performance.now();
+            const chunkDuration = (now - chunkStartTime) / 1000;
+            if (chunkDuration > 0.05) {
+              const liveMbps = (chunkBytes * 8) / (chunkDuration * 1000000);
+              lastMeasuredDlMbps = liveMbps;
+              setGauge(liveMbps);
+              telDownloadVal.textContent = liveMbps.toFixed(1);
+            }
+          }
+        } catch (e) {
+          const backupUrl = `https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js?t=${Date.now()}`;
+          const bStart = performance.now();
+          const bResp = await fetch(backupUrl, { cache: 'no-store' });
+          const bBlob = await bResp.blob();
+          const bDur = (performance.now() - bStart) / 1000;
+          if (bDur > 0) {
+            const bMbps = (bBlob.size * 8) / (bDur * 1000000);
+            lastMeasuredDlMbps = bMbps;
+            setGauge(bMbps);
+            telDownloadVal.textContent = bMbps.toFixed(1);
+          }
+        }
+
+        setProgress(25 + ((i + 1) / downloadSizes.length) * 45);
       }
-      setProgress(70 + (i + 1) * 10);
-      await new Promise(r => setTimeout(r, 120));
-    }
 
-    const finalUpMbps = Math.max(3.2, currentUpMbps);
-    telUploadVal.textContent = finalUpMbps.toFixed(1);
-    telUploadStatus.textContent = finalUpMbps > 25 ? 'ممتاز' : 'مستقر';
-    cardUpload.classList.remove('testing-active');
-    setProgress(100);
+      const finalDlMbps = Math.max(0.5, lastMeasuredDlMbps);
+      telDownloadVal.textContent = finalDlMbps.toFixed(1);
+      telDownloadStatus.textContent = finalDlMbps >= 80 ? 'فائق السرعة 🚀' : (finalDlMbps >= 30 ? 'سريع جداً' : (finalDlMbps >= 10 ? 'جيد' : 'ضعيف'));
+      cardDownload.classList.remove('testing-active');
+      setProgress(70);
 
-    // ----------------------------------------------------
-    // المرحلة 4: التقييم النهائي وعرض النتيجة
-    // ----------------------------------------------------
-    phaseBadge.textContent = 'اكتمل الفحص بنجاح';
-    phaseDesc.textContent = 'تم قياس كفاءة الاتصال وسرعة الإنترنت بدقة كاملة';
-    setGauge(finalDlMbps, 120);
-    haptic([60, 50, 60, 50, 120]);
+      // ----------------------------------------------------
+      // المرحلة 3: قياس سرعة الرفع الحقيقية (Real Upload Stream)
+      // ----------------------------------------------------
+      cardUpload.classList.add('testing-active');
+      phaseBadge.textContent = 'فحص الرفع (Upload)...';
+      phaseDesc.textContent = 'إرسال حزم بيانات حقيقية لقياس سرعة الرفع الفعلية...';
+      telUploadStatus.textContent = 'جاري الإرسال...';
 
-    if (evalBox) {
-      evalBox.style.display = 'flex';
-      if (finalDlMbps >= 50 && minPing <= 40) {
-        evalGrade.textContent = 'S+ ULTRA FAST';
-        evalGrade.style.color = '#10b981';
-        evalDesc.textContent = 'اتصال خارق! ممتاز للألعاب التنافسية وبث مقاطع 4K Ultra HD بدون أي تقطيع 🎮🍿';
-      } else if (finalDlMbps >= 25) {
-        evalGrade.textContent = 'A EXCELLENT';
-        evalGrade.style.color = '#0284c7';
-        evalDesc.textContent = 'اتصال سريع وممتاز لجميع المهام والتنزيل ومكالمات الفيديو بدقة عالية ⚡';
-      } else {
-        evalGrade.textContent = 'B GOOD';
-        evalGrade.style.color = '#f59e0b';
-        evalDesc.textContent = 'اتصال جيد ومستقر للتصفح والتواصل الاجتماعي 📱';
+      const uploadSizes = [512 * 1024, 1024 * 1024, 2 * 1024 * 1024];
+      let lastMeasuredUpMbps = 0;
+
+      for (let i = 0; i < uploadSizes.length; i++) {
+        const upSize = uploadSizes[i];
+        const payload = new Uint8Array(upSize);
+        for (let j = 0; j < 1024; j++) payload[j] = Math.floor(Math.random() * 256);
+
+        const upT0 = performance.now();
+        try {
+          await fetch('https://speed.cloudflare.com/__up', {
+            method: 'POST',
+            body: payload,
+            cache: 'no-store'
+          });
+
+          const upElapsed = (performance.now() - upT0) / 1000;
+          if (upElapsed > 0) {
+            const liveUpMbps = (upSize * 8) / (upElapsed * 1000000);
+            lastMeasuredUpMbps = liveUpMbps;
+            setGauge(liveUpMbps);
+            telUploadVal.textContent = liveUpMbps.toFixed(1);
+          }
+        } catch (e) {
+          const upElapsed = (performance.now() - upT0) / 1000;
+          if (upElapsed > 0.1) {
+            lastMeasuredUpMbps = (upSize * 8) / (upElapsed * 1000000);
+            setGauge(lastMeasuredUpMbps);
+            telUploadVal.textContent = lastMeasuredUpMbps.toFixed(1);
+          }
+        }
+
+        setProgress(70 + ((i + 1) / uploadSizes.length) * 30);
       }
-    }
 
-    startBtn.disabled = false;
-    startBtn.style.opacity = '1';
-    startBtn.innerHTML = '<span>⚡ إعادة فحص السرعة // RE-TEST</span>';
-    toast(`⚡ سرعة التحميل: ${finalDlMbps.toFixed(1)} Mbps | الاستجابة: ${minPing}ms`);
+      const finalUpMbps = Math.max(0.2, lastMeasuredUpMbps);
+      telUploadVal.textContent = finalUpMbps.toFixed(1);
+      telUploadStatus.textContent = finalUpMbps >= 30 ? 'فائق السرعة' : (finalUpMbps >= 10 ? 'ممتاز' : (finalUpMbps >= 3 ? 'مستقر' : 'ضعيف'));
+      cardUpload.classList.remove('testing-active');
+      setProgress(100);
+
+      // ----------------------------------------------------
+      // المرحلة 4: النتيجة والتقييم النهائي
+      // ----------------------------------------------------
+      phaseBadge.textContent = 'اكتمل الفحص بنجاح ⚡';
+      phaseDesc.textContent = 'تم قياس السرعة بدقة عبر خوادم Anycast القريبة';
+      setGauge(finalDlMbps);
+      haptic([60, 50, 60, 50, 120]);
+
+      if (evalBox) {
+        evalBox.style.display = 'flex';
+        if (finalDlMbps >= 60 && minPing <= 45) {
+          evalGrade.textContent = 'S+ ULTRA FAST';
+          evalGrade.style.color = '#10b981';
+          evalDesc.textContent = 'اتصال خارق! ممتاز للألعاب التنافسية وبث مقاطع 4K Ultra HD وتنزيل الملفات الضخمة بدون أي تقطيع 🎮🍿';
+        } else if (finalDlMbps >= 25) {
+          evalGrade.textContent = 'A EXCELLENT';
+          evalGrade.style.color = '#0284c7';
+          evalDesc.textContent = 'اتصال سريع وممتاز للعمل، مكالمات الفيديو عالية الدقة، وبث اليوتيوب بأعلى جودة ⚡';
+        } else if (finalDlMbps >= 8) {
+          evalGrade.textContent = 'B GOOD';
+          evalGrade.style.color = '#f59e0b';
+          evalDesc.textContent = 'اتصال جيد ومناسب للتصفح اليومي، وسائل التواصل، ومقاطع الفيديو العادية 📱';
+        } else {
+          evalGrade.textContent = 'C FAIR';
+          evalGrade.style.color = '#ef4444';
+          evalDesc.textContent = 'سرعة الاتصال منخفضة، قد تواجه بطئاً في تحميل الفيديوهات أو مكالمات الفيديو ⚠️';
+        }
+      }
+
+      toast(`⚡ التحميل: ${finalDlMbps.toFixed(1)} Mbps | الرفع: ${finalUpMbps.toFixed(1)} Mbps | البنج: ${minPing}ms`);
+
+    } catch (criticalErr) {
+      phaseBadge.textContent = 'تعذر الاتصال بالخادم';
+      phaseDesc.textContent = 'يرجى التحقق من اتصال الإنترنت والمحاولة مجدداً';
+      toast('تعذر إكمال الفحص، تأكد من الاتصال بالشبكة');
+    } finally {
+      startBtn.disabled = false;
+      startBtn.style.opacity = '1';
+      startBtn.innerHTML = '<span>⚡ إعادة فحص السرعة // RE-TEST</span>';
+    }
   });
 }
 
