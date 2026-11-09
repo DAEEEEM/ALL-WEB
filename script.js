@@ -349,7 +349,7 @@ function renderApps() {
     const actionLabel = isSanad ? '📲 تثبيت مباشر (APK/PWA)' : (app.category === 'web' ? '💾 تنزيل ملف أوفلاين (HTML)' : '⬇️ DOWNLOAD');
 
     const demoBtn = app.demoUrl && app.demoUrl !== '#'
-      ? `<a href="${safeUrl(app.demoUrl)}" target="_blank" class="btn-demo">👁️ تشغيل كالويب وتثبيت كتطبيق</a>`
+      ? `<a href="${safeUrl(app.demoUrl)}" target="_blank" rel="noopener noreferrer" class="btn-demo">👁️ تشغيل كالويب وتثبيت كتطبيق</a>`
       : '';
 
     const delBtn = isOfficial ? '' : `<button class="btn-del del-trigger" data-id="${app.id}" title="حذف">🗑️</button>`;
