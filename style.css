@@ -1759,6 +1759,18 @@ body {
   transform: translateY(-2px);
 }
 
+.result-dl-btn.accent {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+  color: #020409;
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+}
+
+.result-dl-btn.accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.5);
+}
+
 .result-dl-btn .btn-icon {
   font-size: 1.5rem;
 }

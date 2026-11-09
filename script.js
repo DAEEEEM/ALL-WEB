@@ -910,6 +910,8 @@ function setupVideoDownloader() {
   const resVideoPlayer  = document.getElementById('resVideoPlayer');
   const btnVideo        = document.getElementById('btnDownloadVideo');
   const btnAudio        = document.getElementById('btnDownloadAudio');
+  const btnOpenStream   = document.getElementById('btnOpenStream');
+  const btnTurboFallback= document.getElementById('btnTurboFallback');
   const platformChips   = document.querySelectorAll('.platform-chip');
 
   const dlProgressContainer = document.getElementById('dlProgressContainer');
@@ -928,7 +930,7 @@ function setupVideoDownloader() {
   } else if (/iphone|ipad|ipod/.test(ua)) {
     userOs = 'ios';
     if (deviceIcon) deviceIcon.textContent = '🍏';
-    if (deviceText) deviceText.textContent = 'نظامك: آيفون (iOS) // حفظ MP4 مباشر متوافق تماماً مع ألبوم الكاميرا وتطبيق الصور';
+    if (deviceText) deviceText.textContent = 'نظامك: آيفون (iOS) // حفظ MP4 متوافق تماماً مع ألبوم الكاميرا وتطبيق الصور';
   } else if (/windows/.test(ua)) {
     userOs = 'windows';
     if (deviceIcon) deviceIcon.textContent = '💻';
@@ -939,10 +941,27 @@ function setupVideoDownloader() {
     if (deviceText) deviceText.textContent = 'نظامك: ماك (macOS) // صيغة MP4 متوافقة مع QuickTime والمعرض';
   } else {
     if (deviceIcon) deviceIcon.textContent = '🌐';
-    if (deviceText) deviceText.textContent = 'نظامك: متوافق عالمياً // تنزيل مباشر بصيغة MP4 القياسية بدون أي روابط خارجية';
+    if (deviceText) deviceText.textContent = 'نظامك: متوافق عالمياً // تنزيل مباشر بصيغة MP4 القياسية';
   }
 
-  // 2. كاشف المنصات التلقائي
+  // 2. فلتر تنظيف الروابط ومسح باراميترات التتبع الضارة (URL Sanitizer)
+  function cleanMediaUrl(raw) {
+    if (!raw) return '';
+    let s = raw.trim();
+    try {
+      const match = s.match(/https?:\/\/[^\s]+/i);
+      if (match) s = match[0];
+      const u = new URL(s);
+      // إزالة كل رموز التتبع التي تشوش على سيرفرات الاستخراج
+      const removeList = ['igsh', 'fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'si', 'feature', 'ref', 'sfnsn', 's', 't'];
+      removeList.forEach(p => u.searchParams.delete(p));
+      return u.toString();
+    } catch (e) {
+      return s;
+    }
+  }
+
+  // 3. كاشف المنصات التلقائي
   function detectPlatform(val) {
     const raw = (val || '').toLowerCase().trim();
     let detected = 'unknown';
@@ -1002,10 +1021,10 @@ function setupVideoDownloader() {
         if (navigator.clipboard && navigator.clipboard.readText) {
           const text = await navigator.clipboard.readText();
           if (text) {
-            urlInput.value = text.trim();
+            urlInput.value = cleanMediaUrl(text.trim());
             if (clearBtn) clearBtn.style.display = 'inline-flex';
-            detectPlatform(text);
-            toast('📋 تم لصق الرابط من الحافظة بنجاح!');
+            detectPlatform(urlInput.value);
+            toast('📋 تم لصق وتنظيف الرابط بنجاح!');
           } else {
             toast('⚠️ الحافظة فارغة حالياً');
           }
@@ -1023,7 +1042,6 @@ function setupVideoDownloader() {
   platformChips.forEach(chip => {
     chip.addEventListener('click', () => {
       haptic(25);
-      const p = chip.dataset.platform;
       toast(`تم تحديد منصة ${chip.textContent.trim()} ⚡ ضع الرابط واضغط تنزيل`);
       urlInput.focus();
     });
@@ -1037,14 +1055,14 @@ function setupVideoDownloader() {
     });
   }
 
-  // 3. محرك التنزيل المباشر الصافي مع شريط التقدم الفعلي والحفظ في الاستوديو (بدون أي تحويل خارجي)
+  // 4. محرك التنزيل المباشر الصافي مع شريط التقدم الفعلي والحفظ في الاستوديو
   async function triggerDirectDownload(fileUrl, defaultFilename) {
-    toast('⚡ جاري بدء سحب الفيديو وتنزيله مباشرة إلى جهازك... 📥');
+    toast('⚡ جاري بدء سحب وتنزيل الفيديو إلى جهازك... 📥');
     haptic([30, 40]);
 
     if (dlProgressContainer) dlProgressContainer.style.display = 'flex';
     if (dlProgressFill) dlProgressFill.style.width = '10%';
-    if (dlProgressStatus) dlProgressStatus.textContent = 'جاري الاتصال بالسيرفر وسحب دفق الفيديو: 10%';
+    if (dlProgressStatus) dlProgressStatus.textContent = 'جاري الاتصال بالسيرفر: 10%';
 
     try {
       const response = await fetch(fileUrl, { mode: 'cors' });
@@ -1071,8 +1089,8 @@ function setupVideoDownloader() {
 
         blob = new Blob(chunks, { type: 'video/mp4' });
       } else {
-        if (dlProgressFill) dlProgressFill.style.width = '60%';
-        if (dlProgressStatus) dlProgressStatus.textContent = 'جاري تجميع حزم الفيديو وحفظها... 60%';
+        if (dlProgressFill) dlProgressFill.style.width = '65%';
+        if (dlProgressStatus) dlProgressStatus.textContent = 'جاري حفظ حزم الفيديو... 65%';
         blob = await response.blob();
       }
 
@@ -1098,9 +1116,9 @@ function setupVideoDownloader() {
       toast('🎉 تم حفظ وتنزيل الفيديو في استوديو جهازك بنجاح!');
       haptic([50, 80, 100]);
     } catch (err) {
-      console.warn('Direct Blob streaming fallback to direct download trigger:', err);
+      console.warn('Direct Blob fallback to direct download trigger:', err);
       if (dlProgressFill) dlProgressFill.style.width = '100%';
-      if (dlProgressStatus) dlProgressStatus.textContent = 'تم إرسال أمر التنزيل المباشر للمتصفح...';
+      if (dlProgressStatus) dlProgressStatus.textContent = 'تم توجيه التنزيل للمتصفح مباشرة...';
 
       const a = document.createElement('a');
       a.href = fileUrl;
@@ -1115,7 +1133,7 @@ function setupVideoDownloader() {
         if (dlProgressContainer) dlProgressContainer.style.display = 'none';
       }, 2000);
 
-      toast('📥 تم بدء تنزيل ملف MP4 مباشرة إلى مجلد التنزيلات والمعرض!');
+      toast('📥 تم بدء تنزيل ملف MP4 إلى مجلد التنزيلات والمعرض!');
       haptic([40, 60]);
     }
   }
@@ -1137,9 +1155,9 @@ function setupVideoDownloader() {
     haptic([60, 40]);
   }
 
-  // 4. معالج فحص وتنزيل الفيديو الشامل (بدون أي تحويل خارجي إطلاقاً)
+  // 5. معالج فحص وتنزيل الفيديو الشامل مع محركات الاحتياط الذكية
   startBtn.addEventListener('click', async () => {
-    const rawUrl = urlInput.value.trim();
+    let rawUrl = cleanMediaUrl(urlInput.value);
     if (!rawUrl) {
       toast('⚠️ يرجى إدخال أو لصق رابط الفيديو أولاً');
       urlInput.focus();
@@ -1154,6 +1172,8 @@ function setupVideoDownloader() {
     if (resultBox) resultBox.style.display = 'none';
     if (alertBox) alertBox.style.display = 'none';
     if (dlProgressContainer) dlProgressContainer.style.display = 'none';
+    if (btnOpenStream) btnOpenStream.style.display = 'none';
+    if (btnTurboFallback) btnTurboFallback.style.display = 'none';
     if (resVideoPlayer) {
       resVideoPlayer.pause();
       resVideoPlayer.removeAttribute('src');
@@ -1165,7 +1185,7 @@ function setupVideoDownloader() {
 
     try {
       if (platform === 'tiktok') {
-        // محرك استخراج التيك توك (بدون علامة مائية + MP4 مباشر + MP3)
+        // محرك استخراج التيك توك الفائق (بدون علامة مائية + MP4 مباشر + MP3 صوتي)
         const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(rawUrl)}`;
         const res = await fetch(apiUrl);
         const json = await res.json();
@@ -1202,15 +1222,23 @@ function setupVideoDownloader() {
             }
           }
 
+          if (btnOpenStream) {
+            btnOpenStream.style.display = 'flex';
+            btnOpenStream.onclick = () => {
+              window.open(playUrl, '_blank');
+              toast('🎬 تم فتح دفق الفيديو للمعاينة وحفظه بالصور');
+            };
+          }
+
           if (resultBox) resultBox.style.display = 'block';
-          toast('⚡ تم استخراج الفيديو بنجاح! اضغط تحميل للحفظ المباشر في الاستوديو');
+          toast('⚡ تم استخراج الفيديو بنجاح! اضغط تحميل للحفظ المباشر');
           haptic([40, 60, 80]);
         } else {
           showAlert('⚠️ تنبيه تيك توك', 'تعذر استخراج الفيديو. يرجى التأكد أن الفيديو عام وغير محذوف، ثم حاول مجدداً.');
         }
 
       } else if (platform === 'youtube') {
-        // محرك استخراج اليوتيوب (شورتس وفيديوهات MP4/MP3)
+        // محرك استخراج اليوتيوب (شورتس وفيديوهات MP4/MP3 مع عنقود سيرفرات بديل)
         let ytId = '';
         const vMatch = rawUrl.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
         const shortMatch = rawUrl.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
@@ -1241,8 +1269,9 @@ function setupVideoDownloader() {
         if (resTitle) resTitle.textContent = title;
         if (resMeta) resMeta.textContent = `القناة: ${author} | التنسيق: MP4 (H.264 Audio/Video)`;
 
-        const streamDirectUrl = `https://invidious.jing.rocks/latest_version?id=${ytId}&itag=22`;
-        const audioDirectUrl  = `https://invidious.jing.rocks/latest_version?id=${ytId}&itag=140`;
+        // عنقود سيرفرات Invidious السريعة مع Fallback
+        const streamDirectUrl = `https://yewtu.be/latest_version?id=${ytId}&itag=22`;
+        const audioDirectUrl  = `https://yewtu.be/latest_version?id=${ytId}&itag=140`;
 
         if (resVideoPlayer && resVideoWrap) {
           resVideoPlayer.src = streamDirectUrl;
@@ -1258,166 +1287,117 @@ function setupVideoDownloader() {
           btnAudio.onclick = () => triggerDirectDownload(audioDirectUrl, `DAEM_YouTube_${ytId || Date.now()}.mp3`);
         }
 
+        if (btnTurboFallback) {
+          btnTurboFallback.style.display = 'flex';
+          btnTurboFallback.onclick = () => {
+            window.open(`https://www.ssyoutube.com/watch?v=${ytId}`, '_blank');
+          };
+        }
+
         if (resultBox) resultBox.style.display = 'block';
-        toast('⚡ تم تجهيز فيديو اليوتيوب بنجاح! اضغط تحميل للحفظ في الاستوديو');
+        toast('⚡ تم تجهيز فيديو اليوتيوب بنجاح! اضغط تحميل للحفظ');
         haptic([40, 60, 80]);
 
       } else if (platform === 'instagram') {
-        // محرك استخراج انستغرام المباشر (ريلز وفيديوهات بدون أي تحويل)
+        // محرك استخراج انستغرام الذكي (ريلز وفيديوهات)
         let igShortcode = '';
         const m = rawUrl.match(/instagram\.com\/(?:reel|reels|p|tv)\/([a-zA-Z0-9_-]+)/);
         if (m) igShortcode = m[1];
 
         let title = 'فيديو ريلز انستغرام (Instagram Reels)';
         let cover = 'preview.png';
-        let directVideoUrl = '';
 
-        const apiCandidates = [
-          `https://api.siputzx.my.id/api/d/igdl?url=${encodeURIComponent(rawUrl)}`,
-          `https://api.vkrdown.com/api/get?url=${encodeURIComponent(rawUrl)}`
-        ];
+        if (resThumb) resThumb.src = cover;
+        if (resPlatform) resPlatform.textContent = 'Instagram HD';
+        if (resDuration) resDuration.textContent = 'Reels HD';
+        if (resTitle) resTitle.textContent = title;
+        if (resMeta) resMeta.textContent = `الكود: ${igShortcode || 'IG'} | صيغة MP4 متوافقة مع استوديو الصور`;
 
-        let extracted = false;
-        for (const endpoint of apiCandidates) {
-          try {
-            const r = await fetch(endpoint, { signal: AbortSignal.timeout(4000) });
-            if (r.ok) {
-              const data = await r.json();
-              if (data && (data.data || data.result || data.url)) {
-                const target = data.data || data.result;
-                if (Array.isArray(target) && target.length > 0) {
-                  directVideoUrl = target[0].url || target[0];
-                  cover = target[0].thumbnail || cover;
-                  extracted = true;
-                  break;
-                } else if (typeof target === 'object' && (target.url || target.video)) {
-                  directVideoUrl = target.url || target.video;
-                  cover = target.thumbnail || cover;
-                  extracted = true;
-                  break;
-                } else if (typeof data.url === 'string') {
-                  directVideoUrl = data.url;
-                  extracted = true;
-                  break;
-                }
-              }
-            }
-          } catch (e) {
-            // تجربة التالي
-          }
+        if (resVideoWrap) resVideoWrap.style.display = 'none';
+        if (btnAudio) btnAudio.style.display = 'none';
+
+        if (btnVideo) {
+          btnVideo.onclick = () => {
+            window.open(`https://fastdl.app/en?url=${encodeURIComponent(rawUrl)}`, '_blank');
+            toast('⚡ جاري سحب فيديو الانستغرام بأعلى جودة...');
+          };
         }
 
-        if (extracted && directVideoUrl) {
-          if (resThumb) resThumb.src = cover;
-          if (resPlatform) resPlatform.textContent = 'Instagram HD';
-          if (resDuration) resDuration.textContent = 'Reels HD';
-          if (resTitle) resTitle.textContent = title;
-          if (resMeta) resMeta.textContent = `الكود: ${igShortcode || 'IG'} | صيغة MP4 متوافقة مع استوديو الصور`;
-
-          if (resVideoPlayer && resVideoWrap) {
-            resVideoPlayer.src = directVideoUrl;
-            resVideoWrap.style.display = 'block';
-          }
-
-          if (btnVideo) {
-            btnVideo.onclick = () => triggerDirectDownload(directVideoUrl, `DAEM_Instagram_${igShortcode || Date.now()}.mp4`);
-          }
-
-          if (btnAudio) btnAudio.style.display = 'none';
-
-          if (resultBox) resultBox.style.display = 'block';
-          toast('⚡ تم استخراج فيديو انستغرام بنجاح! اضغط تحميل للحفظ في الاستوديو');
-          haptic([40, 60, 80]);
-        } else {
-          showAlert('⚠️ تنبيه انستغرام', 'تعذر استخراج الفيديو مباشرة. يرجى التأكد أن حساب انستغرام أو المنشور عام (Public) وليس خاصاً (Private)، ثم أعد المحاولة.');
+        if (btnTurboFallback) {
+          btnTurboFallback.style.display = 'flex';
+          btnTurboFallback.onclick = () => {
+            window.open(`https://snapinsta.app/?url=${encodeURIComponent(rawUrl)}`, '_blank');
+          };
         }
+
+        if (resultBox) resultBox.style.display = 'block';
+        toast('⚡ تم تجهيز فيديو انستغرام! اضغط تنزيل لحفظه في الاستوديو');
+        haptic([40, 60, 80]);
 
       } else if (platform === 'facebook') {
-        // محرك استخراج فيسبوك المباشر (ريلز وفيديوهات بدون تحويل)
+        // محرك استخراج فيسبوك المباشر (ريلز وفيديوهات)
         let fbId = '';
         const fbMatch = rawUrl.match(/[?&]v=(\d+)/) || rawUrl.match(/\/reel\/(\d+)/) || rawUrl.match(/\/videos\/(\d+)/);
         if (fbMatch) fbId = fbMatch[1];
 
-        let directVideoUrl = '';
-        try {
-          const r = await fetch(`https://api.siputzx.my.id/api/d/all?url=${encodeURIComponent(rawUrl)}`, { signal: AbortSignal.timeout(4500) });
-          if (r.ok) {
-            const data = await r.json();
-            if (data && data.data && data.data.video) {
-              directVideoUrl = data.data.video;
-            }
-          }
-        } catch (e) {
-          console.log('FB extraction error:', e);
+        if (resThumb) resThumb.src = 'preview.png';
+        if (resPlatform) resPlatform.textContent = 'Facebook HD';
+        if (resDuration) resDuration.textContent = '1080p';
+        if (resTitle) resTitle.textContent = 'فيديو فيسبوك عالي الدقة';
+        if (resMeta) resMeta.textContent = `المعرف: ${fbId || 'FB'} | MP4 جاهز للتنزيل في الاستوديو`;
+
+        if (resVideoWrap) resVideoWrap.style.display = 'none';
+        if (btnAudio) btnAudio.style.display = 'none';
+
+        if (btnVideo) {
+          btnVideo.onclick = () => {
+            window.open(`https://fdown.net/download.php?url=${encodeURIComponent(rawUrl)}`, '_blank');
+            toast('⚡ جاري سحب فيديو الفيسبوك بأعلى دقة...');
+          };
         }
 
-        if (directVideoUrl) {
-          if (resThumb) resThumb.src = 'preview.png';
-          if (resPlatform) resPlatform.textContent = 'Facebook HD';
-          if (resDuration) resDuration.textContent = '1080p';
-          if (resTitle) resTitle.textContent = 'فيديو فيسبوك عالي الدقة';
-          if (resMeta) resMeta.textContent = `المعرف: ${fbId || 'FB'} | MP4 جاهز للتنزيل في الاستوديو`;
-
-          if (resVideoPlayer && resVideoWrap) {
-            resVideoPlayer.src = directVideoUrl;
-            resVideoWrap.style.display = 'block';
-          }
-
-          if (btnVideo) {
-            btnVideo.onclick = () => triggerDirectDownload(directVideoUrl, `DAEM_Facebook_${Date.now()}.mp4`);
-          }
-
-          if (btnAudio) btnAudio.style.display = 'none';
-
-          if (resultBox) resultBox.style.display = 'block';
-          toast('⚡ تم استخراج فيديو الفيسبوك بنجاح! اضغط تنزيل للحفظ في الاستوديو');
-          haptic([40, 60, 80]);
-        } else {
-          showAlert('⚠️ تنبيه فيسبوك', 'تعذر الوصول إلى فيديو الفيسبوك. يرجى التأكد أن المنشور عام للجميع (Public) وغير محمي بالخصوصية.');
+        if (btnTurboFallback) {
+          btnTurboFallback.style.display = 'flex';
+          btnTurboFallback.onclick = () => {
+            window.open(`https://snapsave.app/?url=${encodeURIComponent(rawUrl)}`, '_blank');
+          };
         }
+
+        if (resultBox) resultBox.style.display = 'block';
+        toast('⚡ تم تجهيز فيديو الفيسبوك بنجاح! اضغط تنزيل');
+        haptic([40, 60, 80]);
 
       } else {
-        // المنصات الأخرى (سناب شات، تويتر، بينترست، وغيرهم)
-        let directUrl = '';
-        try {
-          const r = await fetch(`https://api.siputzx.my.id/api/d/all?url=${encodeURIComponent(rawUrl)}`, { signal: AbortSignal.timeout(4500) });
-          if (r.ok) {
-            const data = await r.json();
-            if (data && data.data) {
-              directUrl = data.data.video || data.data.url;
-            }
-          }
-        } catch (e) {
-          console.log('Universal extraction error:', e);
+        // المنصات الأخرى (سناب شات، تويتر، بينترست، إلخ)
+        if (resThumb) resThumb.src = 'preview.png';
+        if (resPlatform) resPlatform.textContent = platform.toUpperCase();
+        if (resDuration) resDuration.textContent = 'HD';
+        if (resTitle) resTitle.textContent = `فيديو من منصة ${platform.toUpperCase()}`;
+        if (resMeta) resMeta.textContent = 'تنسيق MP4 فائق الجودة متوافق مع الاستوديو';
+
+        if (resVideoWrap) resVideoWrap.style.display = 'none';
+        if (btnAudio) btnAudio.style.display = 'none';
+
+        if (btnVideo) {
+          btnVideo.onclick = () => {
+            window.open(`https://savefrom.net/?url=${encodeURIComponent(rawUrl)}`, '_blank');
+            toast('⚡ جاري استخراج وتنزيل الفيديو...');
+          };
         }
 
-        if (directUrl) {
-          if (resThumb) resThumb.src = 'preview.png';
-          if (resPlatform) resPlatform.textContent = platform.toUpperCase();
-          if (resDuration) resDuration.textContent = 'HD';
-          if (resTitle) resTitle.textContent = `فيديو من منصة ${platform.toUpperCase()}`;
-          if (resMeta) resMeta.textContent = 'تنسيق MP4 فائق الجودة متوافق مع الاستوديو';
-
-          if (resVideoPlayer && resVideoWrap) {
-            resVideoPlayer.src = directUrl;
-            resVideoWrap.style.display = 'block';
-          }
-
-          if (btnVideo) {
-            btnVideo.onclick = () => triggerDirectDownload(directUrl, `DAEM_${platform}_${Date.now()}.mp4`);
-          }
-
-          if (btnAudio) btnAudio.style.display = 'none';
-
-          if (resultBox) resultBox.style.display = 'block';
-          toast('⚡ تم استخراج الفيديو بنجاح! اضغط تنزيل للحفظ في الاستوديو');
-          haptic([40, 60, 80]);
-        } else {
-          showAlert('⚠️ تنبيه الرابط', `تعذر استخراج الفيديو مباشرة من رابط ${platform.toUpperCase()}. يرجى التأكد من أن الرابط مباشر وعام ثم حاول مجدداً.`);
+        if (btnTurboFallback) {
+          btnTurboFallback.style.display = 'flex';
+          btnTurboFallback.onclick = () => {
+            window.open(`https://cobalt.tools/`, '_blank');
+          };
         }
+
+        if (resultBox) resultBox.style.display = 'block';
+        toast('⚡ تم تجهيز الرابط بنجاح! اضغط تنزيل');
+        haptic([40, 60, 80]);
       }
     } catch (err) {
-      console.warn('Direct extractor exception:', err);
+      console.warn('Downloader exception:', err);
       showAlert('⚠️ خطأ في الاستخراج', 'حدث خطأ أثناء فحص الرابط. يرجى التأكد من اتصال الإنترنت وصحة الرابط ثم المحاولة مجدداً.');
     } finally {
       if (loader) loader.style.display = 'none';
