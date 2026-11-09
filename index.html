@@ -92,6 +92,10 @@
       </div>
 
       <div class="nav-controls">
+        <a href="#community" class="nav-shortcut-link" title="آراء الزوار والتعليقات">
+          <span>💬 آراء الزوار</span>
+        </a>
+
         <a href="#downloader" class="nav-shortcut-link" title="تنزيل الفيديوهات">
           <span>🎬 تنزيل الفيديوهات</span>
         </a>
@@ -158,12 +162,19 @@
           <span>📲 تثبيت التطبيق</span>
         </button>
 
+        <a href="#community" class="cyber-btn cyber-btn-ghost">
+          <span>💬 آراء الزوار</span>
+        </a>
+
         <div class="hud-stats-pill">
           <span class="hud-stat-title">الحالة:</span>
           <span class="hud-stat-val">نشط</span>
           <span class="hud-divider">•</span>
           <span class="hud-stat-title">الاستجابة:</span>
           <span class="hud-stat-val latency-value" id="latencyVal">--ms</span>
+          <span class="hud-divider">•</span>
+          <span class="hud-stat-title">الزوار:</span>
+          <span class="hud-stat-val" id="topVisitorCount" style="color: #00f0ff; font-weight: 800;">...</span>
         </div>
       </div>
 
@@ -442,7 +453,6 @@
       </div>
     </div>
   </section>
-  </main>
 
   <!-- ============================================================ -->
   <!-- قسم التعليقات والإشعارات وعداد الزوار                        -->
@@ -502,6 +512,7 @@
 
     </div>
   </section>
+  </main>
 
   <!-- تذييل الصفحة Footer -->
   <footer class="cyber-footer">

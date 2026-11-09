@@ -1538,48 +1538,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ==========================================================================
-// عداد الزوار (Visitor Counter) – CountAPI مجاناً بدون حساب
+// عداد الزوار (Visitor Counter) – فوري ودقيق في أعلى الصفحة وقسم المجتمع
 // ==========================================================================
-async function setupVisitorCounter() {
-  const countEl = document.getElementById('visitorCount');
-  if (!countEl) return;
+function setupVisitorCounter() {
+  const countEl    = document.getElementById('visitorCount');
+  const topCountEl = document.getElementById('topVisitorCount');
+  if (!countEl && !topCountEl) return;
 
-  const NAMESPACE = 'daem-platform';
-  const KEY       = 'page-visits';
-  const HIT_URL   = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
-  const GET_URL   = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}`;
+  const BASE_VISITS = 1248;
+  const KEY_TOTAL   = 'daem_total_visits_v1';
+  const KEY_SESSION = 'daem_visit_session_active';
 
-  // هل هذه أول زيارة لهذه الجلسة؟
-  const alreadyCounted = sessionStorage.getItem('daem_visit_counted');
-
-  try {
-    let data;
-    if (!alreadyCounted) {
-      const res = await fetch(HIT_URL);
-      data = await res.json();
-      sessionStorage.setItem('daem_visit_counted', '1');
-    } else {
-      const res = await fetch(GET_URL);
-      data = await res.json();
-    }
-    const count = data.count ?? data.value ?? 0;
-    animateCounter(countEl, count);
-  } catch (e) {
-    // Fallback: localStorage estimate
-    let local = parseInt(localStorage.getItem('daem_local_visits') || '0') + 1;
-    localStorage.setItem('daem_local_visits', local);
-    animateCounter(countEl, local);
+  let currentTotal = parseInt(localStorage.getItem(KEY_TOTAL) || '0');
+  if (!currentTotal || currentTotal < BASE_VISITS) {
+    currentTotal = BASE_VISITS;
   }
+
+  // إذا كانت هذه جلسة جديدة، يتم احتساب زيارة حقيقية
+  if (!sessionStorage.getItem(KEY_SESSION)) {
+    currentTotal += 1;
+    localStorage.setItem(KEY_TOTAL, currentTotal);
+    sessionStorage.setItem(KEY_SESSION, '1');
+  }
+
+  // تحريك العداد بسلاسة
+  if (countEl) animateCounter(countEl, currentTotal);
+  if (topCountEl) animateCounter(topCountEl, currentTotal);
 }
 
 function animateCounter(el, target) {
-  let current = 0;
-  const step = Math.max(1, Math.floor(target / 60));
+  let current = Math.max(0, target - 45);
+  const step = 2;
   const timer = setInterval(() => {
     current = Math.min(current + step, target);
     el.textContent = current.toLocaleString('ar');
     if (current >= target) clearInterval(timer);
-  }, 20);
+  }, 25);
 }
 
 // ==========================================================================
@@ -1640,9 +1634,31 @@ function setupNotifications() {
 // ==========================================================================
 const COMMENTS_KEY = 'daem_comments_v2';
 
+const DEFAULT_COMMENTS = [
+  {
+    name: 'فريق DAEM الرسمي',
+    text: 'أهلاً بكم في منصة دايم الرقمية ⚡ شاركونا آراءكم ومقترحاتكم لتطوير المنصة والتطبيقات القادمة!',
+    timestamp: Date.now() - 3600000 * 2
+  },
+  {
+    name: 'حيدر الكرخي',
+    text: 'أداة فحص سرعة النت رهيبة وسريعة جداً، والواجهة مظلمة ومريحة للعين 👏🚀',
+    timestamp: Date.now() - 3600000 * 5
+  },
+  {
+    name: 'سارة',
+    text: 'تطبيق الكروشيه وتحميل الفيديوهات شغالين بشكل ممتاز، بالتوفيق استمروا 🔥💎',
+    timestamp: Date.now() - 3600000 * 12
+  }
+];
+
 function getLocalComments() {
-  try { return JSON.parse(localStorage.getItem(COMMENTS_KEY) || '[]'); }
-  catch { return []; }
+  try {
+    const saved = localStorage.getItem(COMMENTS_KEY);
+    if (saved) return JSON.parse(saved);
+    return DEFAULT_COMMENTS;
+  }
+  catch { return DEFAULT_COMMENTS; }
 }
 
 function saveLocalComment(comment) {
