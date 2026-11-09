@@ -2,58 +2,24 @@
 // DAEM PWA Service Worker (Offline Cache & Network Engine)
 // ==========================================================================
 
-const CACHE_NAME = 'daem-core-v2.0';
-
-// الأصول الأساسية المطلوب تخزينها مؤقتاً للعمل دون اتصال بالإنترنت
-const CORE_ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './preview.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
-  'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap'
-];
-
-// روابط وروابط فحص الشبكة والـ Speedtest التي يجب أن تكون دائماً Network-Only ولا تُخزن في الكاش
-const BYPASS_URL_PATTERNS = [
-  '1.1.1.1',
-  'api.github.com',
-  'httpbin.org',
-  'cdnjs.cloudflare.com',
-  'cdn.jsdelivr.net',
-  'unpkg.com',
-  'cacheBust',
-  'cdn-cgi/trace'
-];
+const CACHE_NAME = 'daem-core-v50.0';
 
 // ----------------------------------------------------
-// مرحلة التثبيت: Install Event
+// مرحلة التثبيت: Install Event (تخطي الانتظار فورا)
 // ----------------------------------------------------
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(CORE_ASSETS).catch((err) => {
-        console.warn('SW Precache partial warning:', err);
-      });
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 // ----------------------------------------------------
-// مرحلة التفعيل: Activate Event (حذف الكاش القديم)
+// مرحلة التفعيل: Activate Event (حذف كافة الكاش القديم فورا)
 // ----------------------------------------------------
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+          return caches.delete(cacheName);
         })
       );
     }).then(() => self.clients.claim())

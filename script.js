@@ -837,9 +837,9 @@ function setupCyberSpeedTest() {
 function setupPWA() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
+      navigator.serviceWorker.register('./sw.js?v=50.0')
         .then((reg) => {
-          console.log('[DAEM PWA] Service Worker registered scope:', reg.scope);
+          reg.update();
         })
         .catch((err) => {
           console.warn('[DAEM PWA] Service Worker registration failed:', err);
